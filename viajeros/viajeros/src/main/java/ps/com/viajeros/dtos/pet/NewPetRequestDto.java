@@ -11,8 +11,9 @@ import lombok.Setter;
 @Setter
 public class NewPetRequestDto {
     private boolean canil;
-    private Long sizeId;      // ID del tamaño, por ejemplo, 1 (Chico), 2 (Mediano), etc.
-    private Long typeId;      // ID del tipo, por ejemplo, 1 (Perro), 2 (Gato), etc.
+    private Long idSize;      // ID del tamaño, por ejemplo, 1 (Chico), 2 (Mediano), etc.
+    private Long idType;      // ID del tipo, por ejemplo, 1 (Perro), 2 (Gato), etc.
     private Long userId;      // ID del usuario asociado
+    private String name;
 }
 

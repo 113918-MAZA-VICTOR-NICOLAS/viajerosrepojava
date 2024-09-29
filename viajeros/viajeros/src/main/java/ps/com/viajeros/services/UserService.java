@@ -2,10 +2,7 @@ package ps.com.viajeros.services;
 
 import org.springframework.stereotype.Service;
 import ps.com.viajeros.dtos.login.LoginRequest;
-import ps.com.viajeros.dtos.user.EditProfileResponseDto;
-import ps.com.viajeros.dtos.user.NewUserResponseDto;
-import ps.com.viajeros.dtos.user.NewUserDto;
-import ps.com.viajeros.dtos.user.UpdateUserRequestDto;
+import ps.com.viajeros.dtos.user.*;
 import ps.com.viajeros.entities.UserEntity;
 
 import java.util.List;
@@ -41,4 +38,6 @@ public interface UserService {
 
     LoginRequest getUserByEmail(LoginRequest loginRequest);
     void reactivateUser(UserEntity user);
+
+    UserDataDto getDataUserById(Long idUser);
 }

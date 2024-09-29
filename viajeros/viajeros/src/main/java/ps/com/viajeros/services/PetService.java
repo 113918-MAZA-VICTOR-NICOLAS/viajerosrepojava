@@ -12,7 +12,7 @@ public interface PetService {
 
     PetResponseDto createNewPet(NewPetRequestDto newPetRequestDto);
 
-    PetResponseDto updatePet(Long petId, NewPetRequestDto updatedPetRequest);
+    PetResponseDto updatePet(Long petId, PetResponseDto updatedPetRequest);
 
     PetResponseDto deletePet(Long petId);
 }

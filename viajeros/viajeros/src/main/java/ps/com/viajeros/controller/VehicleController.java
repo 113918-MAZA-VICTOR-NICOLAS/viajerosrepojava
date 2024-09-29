@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ps.com.viajeros.dtos.car.CarResponseDto;
 import ps.com.viajeros.dtos.car.NewCarRequestDto;
 import ps.com.viajeros.dtos.common.ErrorApi;
+import ps.com.viajeros.dtos.user.UserDataDto;
 import ps.com.viajeros.entities.ChoferEntity;
 import ps.com.viajeros.services.ChoferService;
 import ps.com.viajeros.services.VehicleService;
@@ -51,5 +52,6 @@ public class VehicleController {
                     .body(new ErrorApi(LocalDateTime.now().toString(), HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error registering vehicle", ex.getMessage()));
         }
     }
+
 
 }

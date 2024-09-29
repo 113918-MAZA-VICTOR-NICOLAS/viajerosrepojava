@@ -2,7 +2,6 @@ package ps.com.viajeros.services.impl;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import ps.com.viajeros.dtos.pet.NewPetRequestDto;
 import ps.com.viajeros.dtos.pet.PetResponseDto;
@@ -58,15 +57,16 @@ public class PetServiceImpl implements PetService {
 
     @Override
     public PetResponseDto createNewPet(NewPetRequestDto newPetRequestDto) {
-        SizePetEntity size = sizePetRepository.findById(newPetRequestDto.getSizeId())
+        SizePetEntity size = sizePetRepository.findById(newPetRequestDto.getIdSize())
                 .orElseThrow(() -> new RuntimeException("Tamaño no encontrado"));
-        TypePetEntity type = typePetRepository.findById(newPetRequestDto.getTypeId())
+        TypePetEntity type = typePetRepository.findById(newPetRequestDto.getIdType())
                 .orElseThrow(() -> new RuntimeException("Tipo no encontrado"));
 
         PetEntity petEntity = new PetEntity();
         petEntity.setCanil(newPetRequestDto.isCanil());
         petEntity.setSize(size);
         petEntity.setType(type);
+        petEntity.setName(newPetRequestDto.getName());
         petEntity.setUser(userRepository.findById(newPetRequestDto.getUserId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado")));
 
@@ -75,18 +75,19 @@ public class PetServiceImpl implements PetService {
     }
 
     @Override
-    public PetResponseDto updatePet(Long petId, NewPetRequestDto updatedPetRequest) {
+    public PetResponseDto updatePet(Long petId, PetResponseDto updatedPetRequest) {
         PetEntity petEntity = petRepository.findById(petId)
                 .orElseThrow(() -> new RuntimeException("Mascota no encontrada"));
 
-        SizePetEntity size = sizePetRepository.findById(updatedPetRequest.getSizeId())
+        SizePetEntity size = sizePetRepository.findById(updatedPetRequest.getIdSize())
                 .orElseThrow(() -> new RuntimeException("Tamaño no encontrado"));
-        TypePetEntity type = typePetRepository.findById(updatedPetRequest.getTypeId())
+        TypePetEntity type = typePetRepository.findById(updatedPetRequest.getIdType())
                 .orElseThrow(() -> new RuntimeException("Tipo no encontrado"));
 
         petEntity.setCanil(updatedPetRequest.isCanil());
         petEntity.setSize(size);
         petEntity.setType(type);
+        petEntity.setName(updatedPetRequest.getName());
 
         PetEntity updatedPet = petRepository.save(petEntity);
         return modelMapper.map(updatedPet, PetResponseDto.class);

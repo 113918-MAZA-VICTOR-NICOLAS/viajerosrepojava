@@ -25,6 +25,9 @@ public class PetEntity {
     @Column(name = "canil")
     private boolean canil;
 
+    @Column(name = "name")
+    private String name;
+
     // Relación con la tabla SizeEntity
     @ManyToOne
     @JoinColumn(name = "size_id", referencedColumnName = "id_size")

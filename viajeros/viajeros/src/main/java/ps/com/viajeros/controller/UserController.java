@@ -173,6 +173,12 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("dataUser/{id}")
+    public ResponseEntity<UserDataDto> getDataUserById(@PathVariable Long id) {
+        UserDataDto userDTO = userService.getDataUserById(id);
+        return ResponseEntity.ok(userDTO);
+    }
+
     // Verifica si el identificador es un email
     private boolean isEmail(String identifier) {
         // Expresión regular para emails

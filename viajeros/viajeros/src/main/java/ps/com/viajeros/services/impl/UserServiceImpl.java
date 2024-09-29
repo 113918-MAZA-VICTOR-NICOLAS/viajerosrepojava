@@ -2,12 +2,11 @@ package ps.com.viajeros.services.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ps.com.viajeros.dtos.car.VehicleDTO;
 import ps.com.viajeros.dtos.login.LoginRequest;
-import ps.com.viajeros.dtos.user.EditProfileResponseDto;
-import ps.com.viajeros.dtos.user.NewUserResponseDto;
-import ps.com.viajeros.dtos.user.UpdateUserRequestDto;
+import ps.com.viajeros.dtos.pet.PetDto;
+import ps.com.viajeros.dtos.user.*;
 import ps.com.viajeros.entities.UserEntity;
-import ps.com.viajeros.dtos.user.NewUserDto;
 import ps.com.viajeros.repository.UserRepository;
 import ps.com.viajeros.services.UserService;
 
@@ -53,6 +52,7 @@ public class UserServiceImpl implements UserService {
         return userEntity.get();
 
     }
+
     @Override
     public Optional<EditProfileResponseDto> getUserForEdit(Long id) {
         UserEntity userEntity = userRepository.getReferenceById(id);
@@ -73,6 +73,7 @@ public class UserServiceImpl implements UserService {
         // Retorna un Optional vacío si el usuario no existe
         return Optional.empty();
     }
+
     @Override
     public UserEntity getUserByPhone(Long phone) {
         Optional<UserEntity> userEntity = userRepository.findByPhone(phone);
@@ -86,7 +87,8 @@ public class UserServiceImpl implements UserService {
                 .map(user -> new NewUserResponseDto(user.getIdUser(), user.getName(), user.getEmail(), user.getPhone()))
                 .collect(Collectors.toList());
     }
-@Override
+
+    @Override
     public void reactivateUser(UserEntity user) {
         user.setDeleted(false);
         userRepository.save(user);
@@ -169,6 +171,41 @@ public class UserServiceImpl implements UserService {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public UserDataDto getDataUserById(Long idUser) {
+        UserEntity userEntity = userRepository.findById(idUser)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return convertToDTO(userEntity);
+    }
+
+    private UserDataDto convertToDTO(UserEntity userEntity) {
+        List<VehicleDTO> vehicles = userEntity.getVehicles()
+                .stream()
+                .map(vehicle -> new VehicleDTO(vehicle.getIdCar(), vehicle.getBrand(), vehicle.getModel(),
+                        vehicle.getPatent(), vehicle.getColor(), vehicle.getFuel(), vehicle.isGnc(),
+                        vehicle.getKmL(), vehicle.isDeleted()))
+                .collect(Collectors.toList());
+
+        List<PetDto> pets = userEntity.getPets()
+                .stream()
+                .filter(pet -> !pet.isDeleted())
+                .map(pet -> new PetDto(pet.getIdPet(), pet.getName(), false, pet.isCanil(),
+                        pet.getSize().getSizeName(), pet.getType().getTypeName()))
+                .collect(Collectors.toList());
+
+        List<ValuationDTO> valuations = userEntity.getValuations()
+                .stream()
+                .map(valuation -> new ValuationDTO(valuation.getIdValuation(), valuation.getIdTrip(),
+                        valuation.getComments(), valuation.getRating()))
+                .collect(Collectors.toList());
+
+        return new UserDataDto(userEntity.getIdUser(), userEntity.getName(), userEntity.getLastname(),
+                userEntity.getEmail(), userEntity.getBank(), userEntity.getCbu(), userEntity.getCuil(),
+                userEntity.getPhone(), userEntity.isDeleted(), userEntity.getProfileImage(),
+                userEntity.getRegistrationDate(), vehicles, pets, valuations);
     }
 
 }

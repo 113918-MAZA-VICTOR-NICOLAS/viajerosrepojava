@@ -14,6 +14,7 @@ import ps.com.viajeros.services.VehicleService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/vehicle")
@@ -52,6 +53,11 @@ public class VehicleController {
                     .body(new ErrorApi(LocalDateTime.now().toString(), HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error registering vehicle", ex.getMessage()));
         }
     }
-
+    // Actualizar vehículo
+    @PutMapping("/update/{id}")
+    public ResponseEntity<CarResponseDto> updateVehicle(@PathVariable Long id, @RequestBody CarResponseDto carDto) {
+        CarResponseDto updatedCar = vehicleService.updateVehicle(id, carDto);
+        return ResponseEntity.ok(updatedCar);
+    }
 
 }

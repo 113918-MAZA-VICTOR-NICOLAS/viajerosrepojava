@@ -136,7 +136,8 @@ public class UserController {
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<Map<String, String>> resetPassword(@RequestParam String token, @RequestBody String newPassword) {
+    public ResponseEntity<Map<String, String>> resetPassword(@RequestParam String token, @RequestBody Map<String, String> payload) {
+        String newPassword = payload.get("password"); // Asegúrate de que el nombre de la propiedad coincida
         if (emailService.isValidToken(token)) {
             emailService.updatePassword(token, newPassword);
             Map<String, String> response = new HashMap<>();
@@ -146,6 +147,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.singletonMap("error", "Token inválido."));
         }
     }
+
 
 
     @PostMapping("/recovery-mail")

@@ -5,6 +5,7 @@ import ps.com.viajeros.dtos.car.CarResponseDto;
 import ps.com.viajeros.dtos.car.NewCarRequestDto;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public interface VehicleService {
@@ -13,4 +14,6 @@ public interface VehicleService {
     CarResponseDto registerVehicle(NewCarRequestDto newCarRequestDto);
 
     CarResponseDto delete(Long id);
+
+  CarResponseDto updateVehicle(Long id, CarResponseDto updatedVehicle);
 }

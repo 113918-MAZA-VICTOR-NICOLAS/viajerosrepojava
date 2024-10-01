@@ -2,7 +2,9 @@ package ps.com.viajeros.services.impl;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import ps.com.viajeros.dtos.car.CarResponseDto;
 import ps.com.viajeros.dtos.car.NewCarRequestDto;
 import ps.com.viajeros.entities.UserEntity;
@@ -95,6 +97,7 @@ public class VehicleServiceImpl implements VehicleService {
         // Mapear la entidad a DTO antes de eliminarla
         VehicleEntity vehicleEntity = vehicleEntityOptional.get();
         vehicleEntity.setDeleted(true);
+        vehicleRepository.save(vehicleEntity);
         CarResponseDto carResponseDto = modelMapper.map(vehicleEntity, CarResponseDto.class);
 
 
@@ -102,7 +105,20 @@ public class VehicleServiceImpl implements VehicleService {
         return carResponseDto;
     }
 
+    public CarResponseDto updateVehicle(Long id, CarResponseDto carDto) {
+        // Buscar el vehículo por id
+        VehicleEntity vehicle = vehicleRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vehículo no encontrado con id: " + id));
 
+        // Actualizar el vehículo con los datos del DTO
+        modelMapper.map(carDto, vehicle);
+
+        // Guardar cambios en la base de datos
+        VehicleEntity updatedVehicle = vehicleRepository.save(vehicle);
+
+        // Convertir la entidad actualizada en DTO y retornarla
+        return modelMapper.map(updatedVehicle, CarResponseDto.class);
+    }
 
     // Método de utilidad para convertir VehicleEntity a CarResponseDto
     private CarResponseDto convertToCarResponseDto(VehicleEntity vehicleEntity) {

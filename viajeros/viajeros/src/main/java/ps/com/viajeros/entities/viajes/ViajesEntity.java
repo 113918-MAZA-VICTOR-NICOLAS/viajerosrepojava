@@ -29,7 +29,7 @@ public class ViajesEntity {
     @Column(name = "fecha_hora_inicio", nullable = false)
     private LocalDateTime fechaHoraInicio;
 
-    @Column(name = "fecha_hora_fin", nullable = true)
+    @Column(name = "fecha_hora_fin")
     private LocalDateTime fechaHoraFin;
 
     @ManyToOne(fetch = FetchType.LAZY)

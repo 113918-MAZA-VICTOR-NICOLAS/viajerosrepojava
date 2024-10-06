@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class RegisterComprobationDto {
-    private Boolean mailAlreadyExist = false;
-    private Boolean phoneAlreadyExist = false;
+    private boolean mailAlreadyExist = false;
+    private boolean phoneAlreadyExist = false;
 }

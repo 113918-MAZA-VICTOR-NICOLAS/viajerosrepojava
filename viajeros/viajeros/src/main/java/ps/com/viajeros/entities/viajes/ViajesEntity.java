@@ -60,6 +60,9 @@ public class ViajesEntity {
     @JoinColumn(name = "estado_id")
     private StatusEntity estado;
 
+    @Column(name = "recordatorio_enviado", nullable = false)
+    private boolean recordatorioEnviado = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_chofer", nullable = false)
     private UserEntity chofer;

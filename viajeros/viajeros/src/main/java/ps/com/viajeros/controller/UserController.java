@@ -28,38 +28,45 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody NewUserDto newUserDto) {
-        RegisterComprobationDto comprobationDto = new RegisterComprobationDto(false, false);  // Asumiendo que el constructor inicializa los booleanos a false
+        RegisterComprobationDto comprobationDto = new RegisterComprobationDto(false, false); // Inicializamos el DTO
 
-        Optional<UserEntity> userEntityMail = userRepository.findByEmail(newUserDto.getEmail().toLowerCase());
+        // Buscar todos los usuarios con el mismo email
+        List<UserEntity> userEntitiesByEmail = userRepository.findByEmail(newUserDto.getEmail().toLowerCase());
+        boolean canRegisterByEmail = true;
 
-
-        if (userEntityMail.isPresent()) {
-
-            if (userEntityMail.get().isDeleted()) {
-                userService.reactivateUser(userEntityMail.get());
+        for (UserEntity user : userEntitiesByEmail) {
+            if (!user.isDeleted()) {
+                comprobationDto.setMailAlreadyExist(true);
+                canRegisterByEmail = false;
+                break;  // Si encontramos un email que no está eliminado, salimos del bucle
             }
-            comprobationDto.setMailAlreadyExist(true);
         }
 
-        Optional<UserEntity> userEntityPhone = userRepository.findByPhone(newUserDto.getPhone());
+        // Buscar todos los usuarios con el mismo teléfono
+        List<UserEntity> userEntitiesByPhone = userRepository.findByPhone(newUserDto.getPhone());
+        boolean canRegisterByPhone = true;
 
-
-        if(userEntityMail.isPresent()){
-            if (userEntityPhone.get().isDeleted()) {
-                userService.reactivateUser(userEntityMail.get());
+        for (UserEntity user : userEntitiesByPhone) {
+            if (!user.isDeleted()) {
+                comprobationDto.setPhoneAlreadyExist(true);
+                canRegisterByPhone = false;
+                break;  // Si encontramos un teléfono que no está eliminado, salimos del bucle
             }
-            comprobationDto.setPhoneAlreadyExist(true);
         }
 
-
-        // Si el email o el teléfono ya existen, devolver el DTO con un código de error
-        if (comprobationDto.getMailAlreadyExist() || comprobationDto.getPhoneAlreadyExist()) {
-            return new ResponseEntity<>(comprobationDto, HttpStatus.CONFLICT);  // Código 409: conflicto
+        // Si alguno de los dos no permite el registro, devolver un error
+        if (!canRegisterByEmail || !canRegisterByPhone) {
+            return ResponseEntity.badRequest().body(comprobationDto);
         }
 
-        // Si no existen, proceder con el registro
+        // Si todos los emails y teléfonos están eliminados, permitir el registro
         NewUserResponseDto newUser = userService.registerUser(newUserDto);
-        return new ResponseEntity<>(newUser, HttpStatus.CREATED);  // Código 201: creado con éxito
+
+        // Devolver un objeto JSON con el mensaje de éxito
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Usuario registrado con éxito");
+
+        return ResponseEntity.ok(response);
     }
 
 

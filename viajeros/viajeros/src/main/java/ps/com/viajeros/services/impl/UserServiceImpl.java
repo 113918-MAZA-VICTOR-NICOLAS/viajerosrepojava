@@ -46,12 +46,6 @@ public class UserServiceImpl implements UserService {
         return userEntity.map(user -> new NewUserResponseDto(user.getIdUser(), user.getName(), user.getEmail(), user.getPhone()));
     }
 
-    @Override
-    public UserEntity getUserByEmail(String mail) {
-        Optional<UserEntity> userEntity = userRepository.findByEmail(mail);
-        return userEntity.get();
-
-    }
 
     @Override
     public Optional<EditProfileResponseDto> getUserForEdit(Long id) {
@@ -76,10 +70,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserEntity getUserByPhone(Long phone) {
-        Optional<UserEntity> userEntity = userRepository.findByPhone(phone);
-        return userEntity.get();
-    }
+        List<UserEntity> userEntities = userRepository.findByPhone(phone);
 
+        // Si no hay usuarios o el primero no está eliminado, devolver el primero de la lista
+        if (!userEntities.isEmpty()) {
+            return userEntities.get(0);
+        }
+
+        throw new RuntimeException("No user found with phone: " + phone);
+    }
     @Override
     public List<NewUserResponseDto> getAllUsers() {
         List<UserEntity> users = userRepository.findAll();
@@ -125,15 +124,34 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public LoginRequest getUserByEmail(LoginRequest loginRequest) {
-        // Aquí debes buscar el usuario por el email (username en este caso)
-        Optional<UserEntity> user = userRepository.findByEmail(loginRequest.getUsername());
-        if (user.isPresent() && !user.get().isDeleted()) {
-            LoginRequest userSavedInBD = new LoginRequest();
-            userSavedInBD.setUsername(user.get().getEmail()); // o el campo que uses
-            userSavedInBD.setPassword(user.get().getPassword()); // Asumiendo que guardas la contraseña (no es recomendable)
-            return userSavedInBD;
+        // Buscar todos los usuarios con el mismo email
+        List<UserEntity> users = userRepository.findByEmail(loginRequest.getUsername());
+
+        // Recorrer la lista de usuarios para encontrar el primero que no esté eliminado
+        for (UserEntity user : users) {
+            if (!user.isDeleted()) {
+                LoginRequest userSavedInBD = new LoginRequest();
+                userSavedInBD.setUsername(user.getEmail()); // Usamos el email del usuario
+                userSavedInBD.setPassword(user.getPassword()); // Asumiendo que guardas la contraseña (no recomendable)
+                return userSavedInBD; // Retornamos el primer usuario activo encontrado
+            }
         }
+
+        // Si no se encuentra ningún usuario activo, devolver null
         return null;
+    }
+
+
+    @Override
+    public UserEntity getUserByEmail(String mail) {
+        List<UserEntity> userEntities = userRepository.findByEmail(mail);
+
+        // Si no hay usuarios o el primero no está eliminado, devolver el primero de la lista
+        if (!userEntities.isEmpty()) {
+            return userEntities.get(0);
+        }
+
+        throw new RuntimeException("No user found with email: " + mail);
     }
 
     @Override

@@ -25,5 +25,9 @@ public interface LocalidadRepository extends JpaRepository<LocalidadEntity, Long
             "FUNCTION('REPLACE', :nombre, 'á', 'a'), 'é', 'e'), 'í', 'i'), 'ó', 'o'), 'ú', 'u'), '%')) " +
             "ORDER BY CASE WHEN LOWER(l.localidad) = LOWER(:nombre) THEN 0 ELSE 1 END, LENGTH(l.localidad)")
     List<LocalidadEntity> buscarLocalidadesIgnorandoAcentos(@Param("nombre") String nombre);
+
+
+    // Encuentra la localidad por nombre
+    LocalidadEntity findByLocalidad(String localidad);
 }
 

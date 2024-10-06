@@ -44,6 +44,7 @@ public class ViajeServiceImpl implements ViajeService {
     @Autowired
     private StatusViajeRepository statusViajeRepository;
 
+    @Override
 
     public void registerNewTrip(NewRequestViajeDto newTripRequestDto) {
         try {
@@ -94,15 +95,64 @@ public class ViajeServiceImpl implements ViajeService {
 
     @Override
     public List<SearchResultMatchDto> findViajesByCriteria(ViajesRequestMatchDto request) {
-        List<ViajesEntity> viajes = viajeRepository.findByLocalidadInicioAndLocalidadFin(
-                request.getOrigin(),
-                request.getDestination()
-        );
+        // Consultar las entidades LocalidadEntity para origen y destino usando los ids
+        LocalidadEntity originEntity = localidadRepository.findById(request.getLocalidadInicioId())
+                .orElseThrow(() -> new IllegalArgumentException("Origen no encontrado"));
+        LocalidadEntity destinationEntity = localidadRepository.findById(request.getLocalidadFinId())
+                .orElseThrow(() -> new IllegalArgumentException("Destino no encontrado"));
+
+        // Buscar la entidad StatusEntity con id_status 2
+        StatusEntity status = statusViajeRepository.findById(2L)
+                .orElseThrow(() -> new IllegalArgumentException("Status no encontrado"));
+
+        // Pasar las entidades completas a la consulta del repositorio de viajes filtrando por estado
+        List<ViajesEntity> viajes = viajeRepository.findByLocalidadInicioAndLocalidadFinAndEstado(originEntity, destinationEntity, status);
 
         return viajes.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
+
+
+
+    @Override
+    public List<SearchResultMatchDto> findViajesByOrigin(String origin) {
+        // Buscar la entidad LocalidadEntity basada en el nombre del origen
+        LocalidadEntity localidadInicio = localidadRepository.findByLocalidad(origin);
+
+        if (localidadInicio == null) {
+            // Si no se encuentra la localidad, devolver una lista vacía o manejar el caso
+            return List.of();
+        }
+
+        // Buscar la entidad StatusEntity con id_status 2
+        StatusEntity status = statusViajeRepository.findById(2L)
+                .orElseThrow(() -> new IllegalArgumentException("Status no encontrado"));
+
+        // Usar la entidad LocalidadEntity para buscar los viajes y filtrar por el estado
+        List<ViajesEntity> viajes = viajeRepository.findByLocalidadInicioAndEstado(localidadInicio, status);
+
+        return viajes.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+
+
+    @Override
+    public List<SearchResultMatchDto> findAllViajes() {
+        // Buscar la entidad StatusEntity con id_status 2
+        StatusEntity status = statusViajeRepository.findById(2L)
+                .orElseThrow(() -> new IllegalArgumentException("Status no encontrado"));
+
+        // Filtrar los viajes por el estado encontrado
+        List<ViajesEntity> viajes = viajeRepository.findByEstado(status);
+
+        return viajes.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
     private SearchResultMatchDto convertToDto(ViajesEntity entity) {
         return SearchResultMatchDto.builder()
                 .tripId(entity.getIdViaje())

@@ -66,5 +66,13 @@ public class EmailService {
         }
     }
 
+    // Método para enviar correos una hora antes del viaje
+    public void sendReminderEmail(String to, String viajeDetails) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("Recordatorio: Su viaje comenzará en una hora");
+        message.setText(viajeDetails);
+        mailSender.send(message);
+    }
 
 }

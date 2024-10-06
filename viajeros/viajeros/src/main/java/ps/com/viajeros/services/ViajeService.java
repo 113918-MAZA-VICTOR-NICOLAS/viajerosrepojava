@@ -15,6 +15,8 @@ public interface ViajeService {
 
     void registerNewTrip(NewRequestViajeDto newTripRequestDto);
     List<SearchResultMatchDto> findViajesByCriteria(ViajesRequestMatchDto request);
-    List<SearchResultMatchDto> findViajesByOrigin(String origin);
-    List<SearchResultMatchDto> findAllViajes();
+    List<SearchResultMatchDto> findViajesByOrigin(ViajesRequestMatchDto request);
+    List<SearchResultMatchDto> findAllViajesCreated(ViajesRequestMatchDto request);
+
+    List<SearchResultMatchDto> findAllViajesCreatedExeptOrigin(ViajesRequestMatchDto request);
 }

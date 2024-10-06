@@ -116,14 +116,16 @@ public class ViajeServiceImpl implements ViajeService {
 
 
     @Override
-    public List<SearchResultMatchDto> findViajesByOrigin(String origin) {
-        // Buscar la entidad LocalidadEntity basada en el nombre del origen
-        LocalidadEntity localidadInicio = localidadRepository.findByLocalidad(origin);
-
-        if (localidadInicio == null) {
-            // Si no se encuentra la localidad, devolver una lista vacía o manejar el caso
+    public List<SearchResultMatchDto> findViajesByOrigin(ViajesRequestMatchDto request) {
+        // Verificar si el idlocalidadInicioId fue proporcionado en la request
+        if (request.getLocalidadInicioId() == null) {
+            // Si no se proporciona el id de la localidad de inicio, devolver una lista vacía
             return List.of();
         }
+
+        // Buscar la entidad LocalidadEntity basada en el idlocalidadInicioId
+        LocalidadEntity localidadInicio = localidadRepository.findById(request.getLocalidadInicioId())
+                .orElseThrow(() -> new IllegalArgumentException("Localidad de origen no encontrada"));
 
         // Buscar la entidad StatusEntity con id_status 2
         StatusEntity status = statusViajeRepository.findById(2L)
@@ -132,26 +134,53 @@ public class ViajeServiceImpl implements ViajeService {
         // Usar la entidad LocalidadEntity para buscar los viajes y filtrar por el estado
         List<ViajesEntity> viajes = viajeRepository.findByLocalidadInicioAndEstado(localidadInicio, status);
 
+        // Convertir los viajes encontrados a DTO y devolver la lista
         return viajes.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
+
 
 
 
     @Override
-    public List<SearchResultMatchDto> findAllViajes() {
+    public List<SearchResultMatchDto> findAllViajesCreated(ViajesRequestMatchDto request) {
         // Buscar la entidad StatusEntity con id_status 2
         StatusEntity status = statusViajeRepository.findById(2L)
                 .orElseThrow(() -> new IllegalArgumentException("Status no encontrado"));
 
-        // Filtrar los viajes por el estado encontrado
+        // Filtrar los viajes por el estado encontrado (id_status 2)
         List<ViajesEntity> viajes = viajeRepository.findByEstado(status);
 
+        // Convertir los viajes filtrados a DTO y devolver la lista
         return viajes.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
+    @Override
+    public List<SearchResultMatchDto> findAllViajesCreatedExeptOrigin(ViajesRequestMatchDto request) {
+        // Verificar si se proporciona el id de la localidad de origen
+        if (request.getLocalidadInicioId() == null) {
+            throw new IllegalArgumentException("El ID de la localidad de origen es requerido");
+        }
+
+        // Buscar la entidad StatusEntity con id_status 2
+        StatusEntity status = statusViajeRepository.findById(2L)
+                .orElseThrow(() -> new IllegalArgumentException("Status no encontrado"));
+
+        // Buscar la entidad LocalidadEntity basada en el idlocalidadInicioId
+        LocalidadEntity localidadInicio = localidadRepository.findById(request.getLocalidadInicioId())
+                .orElseThrow(() -> new IllegalArgumentException("Localidad de origen no encontrada"));
+
+        // Filtrar los viajes por estado, excluyendo los que tienen la localidad de origen dada
+        List<ViajesEntity> viajes = viajeRepository.findByEstadoAndLocalidadInicioNot(status, localidadInicio);
+
+        // Convertir los viajes filtrados a DTO y devolver la lista
+        return viajes.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
 
     private SearchResultMatchDto convertToDto(ViajesEntity entity) {
         return SearchResultMatchDto.builder()

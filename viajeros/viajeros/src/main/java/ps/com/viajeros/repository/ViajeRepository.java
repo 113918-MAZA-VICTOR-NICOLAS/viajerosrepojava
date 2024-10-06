@@ -27,6 +27,7 @@ public interface ViajeRepository extends JpaRepository<ViajesEntity, Long> {
     List<ViajesEntity> findByEstadoAndFechaHoraInicioLessThanEqualFetchPasajeros(@Param("estado") StatusEntity estado, @Param("fechaHoraInicio") LocalDateTime fechaHoraInicio);
     @Query("SELECT v FROM ViajesEntity v LEFT JOIN FETCH v.pasajeros WHERE v.estado = :estado AND v.fechaHoraInicio BETWEEN :desde AND :hasta")
     List<ViajesEntity> findByEstadoAndFechaHoraInicioBetweenFetchPasajeros(@Param("estado") StatusEntity estado, @Param("desde") LocalDateTime desde, @Param("hasta") LocalDateTime hasta);
+    List<ViajesEntity> findByEstadoAndLocalidadInicioNot(StatusEntity estado, LocalidadEntity localidadInicio);
 
 
 }

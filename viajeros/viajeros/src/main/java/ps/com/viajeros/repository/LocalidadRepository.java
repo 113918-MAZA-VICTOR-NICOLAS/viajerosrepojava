@@ -27,7 +27,5 @@ public interface LocalidadRepository extends JpaRepository<LocalidadEntity, Long
     List<LocalidadEntity> buscarLocalidadesIgnorandoAcentos(@Param("nombre") String nombre);
 
 
-    // Encuentra la localidad por nombre
-    LocalidadEntity findByLocalidad(String localidad);
 }
 

@@ -32,22 +32,23 @@ public class ViajeController {
         }
     }
 
-    @PostMapping("/buscar")
-    public List<SearchResultMatchDto> buscarViajes(@RequestBody ViajesRequestMatchDto request) {
+    // Endpoint para buscar viajes por origen y destino
+    @PostMapping("/buscarorigenydestino")
+    public List<SearchResultMatchDto> buscarViajesOrigenYdestino(@RequestBody ViajesRequestMatchDto request) {
         return viajeService.findViajesByCriteria(request);
     }
 
-
     // Endpoint para listar viajes del mismo origen (sin importar el destino)
-    @GetMapping("/origen/{origin}")
-    public List<SearchResultMatchDto> buscarViajesPorOrigen(@PathVariable String origin) {
-        return viajeService.findViajesByOrigin(origin);
+    @PostMapping("/origen")
+    public List<SearchResultMatchDto> buscarViajesPorOrigen(@RequestBody ViajesRequestMatchDto request) {
+        return viajeService.findViajesByOrigin(request);
     }
 
-    // Endpoint para listar todos los viajes restantes
-    @GetMapping("/todos")
-    public List<SearchResultMatchDto> obtenerTodosLosViajesRestantes() {
-        return viajeService.findAllViajes();
+    // Endpoint para listar todos los viajes restantes excepto el origen
+    @PostMapping("/todosCreated")
+    public List<SearchResultMatchDto> obtenerTodosLosViajesExceptOrigin(@RequestBody ViajesRequestMatchDto request) {
+        return viajeService.findAllViajesCreatedExeptOrigin(request);
     }
+
 }
 

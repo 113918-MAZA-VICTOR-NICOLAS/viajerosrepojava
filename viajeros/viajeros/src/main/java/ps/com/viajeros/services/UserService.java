@@ -40,4 +40,6 @@ public interface UserService {
     void reactivateUser(UserEntity user);
 
     UserDataDto getDataUserById(Long idUser);
+
+    UserSummaryDto getUserSummary(Long userId);
 }

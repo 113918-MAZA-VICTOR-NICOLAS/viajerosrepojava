@@ -34,6 +34,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/user/recovery-mail").permitAll()
                         .requestMatchers("/api/user/reset-password").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
+                        .requestMatchers("/chat-websocket/**").permitAll()
+
                         // Proteger todas las demás rutas
                         .anyRequest().authenticated()
                 );

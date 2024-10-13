@@ -180,6 +180,63 @@ public class ViajeServiceImpl implements ViajeService {
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
+    @Override
+    public List<SearchResultMatchDto> findAllCreatedAndInProgressByUser(Long userId) {
+        // Buscar el usuario por su ID
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        // Buscar los estados 2 (CREATED) y 3 (INPROGRESS)
+        List<StatusEntity> estados = statusViajeRepository.findAllById(List.of(2L, 3L));
+
+        if (estados.isEmpty()) {
+            throw new IllegalArgumentException("Estados no encontrados");
+        }
+
+        // Buscar los viajes filtrando por el usuario (chofer) y los estados
+        List<ViajesEntity> viajes = viajeRepository.findAllByChoferAndEstadoIn(user, estados);
+
+        // Reutilizar tu método convertToDto
+        return viajes.stream().map(this::convertToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SearchResultMatchDto> findAllFinishedByUser(Long userId) {
+        // Buscar el usuario por su ID
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        // Buscar el estado 6 (FINISHED)
+        StatusEntity estado = statusViajeRepository.findById(6L)
+                .orElseThrow(() -> new IllegalArgumentException("Estado no encontrado"));
+
+        // Buscar los viajes filtrando por el usuario (chofer) y el estado
+        List<ViajesEntity> viajes = viajeRepository.findAllByChoferAndEstado(user, estado);
+
+        // Reutilizar tu método convertToDto
+        return viajes.stream().map(this::convertToDto).collect(Collectors.toList());
+    }
+    @Override
+    public void deleteViajeLogicamente(Long viajeId) {
+        // Buscar el viaje por su ID
+        ViajesEntity viaje = viajeRepository.findById(viajeId)
+                .orElseThrow(() -> new IllegalArgumentException("Viaje no encontrado"));
+
+        // Verificar si el viaje tiene pasajeros
+        if (viaje.getPasajeros() != null && !viaje.getPasajeros().isEmpty()) {
+            throw new IllegalStateException("No se puede eliminar el viaje porque ya tiene pasajeros");
+        }
+
+        // Buscar el estado 'deleted' (supongamos que su ID es 5)
+        StatusEntity statusDeleted = statusViajeRepository.findById(5L)
+                .orElseThrow(() -> new IllegalArgumentException("Estado 'deleted' no encontrado"));
+
+        // Cambiar el estado del viaje a 'deleted'
+        viaje.setEstado(statusDeleted);
+
+        // Guardar los cambios
+        viajeRepository.save(viaje);
+    }
 
 
     private SearchResultMatchDto convertToDto(ViajesEntity entity) {
@@ -212,4 +269,29 @@ public class ViajeServiceImpl implements ViajeService {
 
         return sum / valuations.size();
     }
+
+    @Override
+    public List<SearchResultMatchDto> findAllCreated() {
+        StatusEntity statusCreated = statusViajeRepository.findById(2L) // Buscamos el estado "Created" con id 2
+                .orElseThrow(() -> new IllegalArgumentException("Estado 'Created' no encontrado"));
+        List<ViajesEntity> viajes = viajeRepository.findByEstado(statusCreated);
+
+        // Mapear a DTOs
+        return viajes.stream().map(this::convertToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public Long getChoferByTrip(Long idTrip) {
+        ViajesEntity viaje = viajeRepository.findById(idTrip).orElse(null); // Usamos findById para manejar opcional
+        if (viaje != null && viaje.getChofer() != null) {
+            return viaje.getChofer().getIdUser(); // Obtenemos el id del chofer
+        }
+        return null; // Retorna null si no hay viaje o no hay chofer asociado
+    }
+
+    @Override
+    public SearchResultMatchDto convertToDtoById(ViajesEntity viaje) {
+        return convertToDto(viaje);
+    }
+
 }

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ps.com.viajeros.entities.chat.ChatEntity;
 import ps.com.viajeros.entities.UserEntity;
 import ps.com.viajeros.entities.VehicleEntity;
 import ps.com.viajeros.entities.viajes.directions.LocalidadEntity;
@@ -76,4 +77,7 @@ public class ViajesEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "localidad_fin", nullable = false)
     private LocalidadEntity localidadFin;
+
+    @OneToMany(mappedBy = "viaje", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ChatEntity> chats;
 }

@@ -1,5 +1,6 @@
 package ps.com.viajeros.services.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ps.com.viajeros.dtos.car.VehicleDTO;
@@ -7,10 +8,15 @@ import ps.com.viajeros.dtos.login.LoginRequest;
 import ps.com.viajeros.dtos.pet.PetDto;
 import ps.com.viajeros.dtos.user.*;
 import ps.com.viajeros.entities.UserEntity;
+import ps.com.viajeros.entities.viajes.StatusEntity;
+import ps.com.viajeros.repository.StatusViajeRepository;
 import ps.com.viajeros.repository.UserRepository;
+import ps.com.viajeros.repository.ValuationRepository;
+import ps.com.viajeros.repository.ViajeRepository;
 import ps.com.viajeros.services.UserService;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,6 +27,13 @@ public class UserServiceImpl implements UserService {
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    ViajeRepository viajesRepository;
+
+    @Autowired
+    ValuationRepository valuationRepository;
+    @Autowired
+    private StatusViajeRepository statusRepository;
 
     @Override
     public NewUserResponseDto registerUser(NewUserDto newUserDto) {
@@ -79,6 +92,7 @@ public class UserServiceImpl implements UserService {
 
         throw new RuntimeException("No user found with phone: " + phone);
     }
+
     @Override
     public List<NewUserResponseDto> getAllUsers() {
         List<UserEntity> users = userRepository.findAll();
@@ -226,4 +240,52 @@ public class UserServiceImpl implements UserService {
                 userEntity.getRegistrationDate(), vehicles, pets, valuations);
     }
 
+    @Override
+    public UserSummaryDto getUserSummary(Long userId) {
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        UserEntity chofer = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        // Buscar el estado "FINISHED" que tiene id 6
+        StatusEntity estadoFinalizado = statusRepository.findById(6L)
+                .orElseThrow(() -> new EntityNotFoundException("Status not found"));
+
+        // Buscar el estado "PENDING", "CREATED" y "IN PROGRESS" que tienen los IDs correspondientes
+        List<StatusEntity> estadosPendientes = statusRepository.findAllById(Arrays.asList(1L, 2L, 3L));
+
+        // Contar viajes completados como chofer
+        Long completedTrips = viajesRepository.countByChoferAndEstado(chofer, estadoFinalizado);
+
+        // Contar viajes pendientes como chofer
+        Long pendingTrips = viajesRepository.countByChoferAndEstadoIn(chofer, estadosPendientes);
+
+
+        // Obtener promedio de valoraciones como chofer
+        Long averageRatingAsDriver = valuationRepository.getAverageRatingByUserIdAndAsDriver(userId);
+
+        // Obtener promedio de valoraciones como pasajero
+        Long averageRatingAsPassenger = valuationRepository.getAverageRatingByUserIdAndAsPassenger(userId);
+
+        Long totalAverageRating;
+
+        if (averageRatingAsDriver != null && averageRatingAsPassenger != null) {
+            totalAverageRating = (averageRatingAsDriver + averageRatingAsPassenger) / 2;
+        } else if (averageRatingAsDriver != null) {
+            totalAverageRating = averageRatingAsDriver;
+        } else if (averageRatingAsPassenger != null) {
+            totalAverageRating = averageRatingAsPassenger;
+        } else {
+            totalAverageRating = 0L; // Si ambos son null, establecemos el promedio en 0 o puedes manejarlo como mejor te parezca
+        }
+
+        String fullName = user.getName() + " " + user.getLastname();
+
+        return UserSummaryDto.builder()
+                .completedTrips(completedTrips)
+                .pendingTrips(pendingTrips)
+                .averageRating(totalAverageRating)
+                .fullName(fullName)
+                .build();
+    }
 }

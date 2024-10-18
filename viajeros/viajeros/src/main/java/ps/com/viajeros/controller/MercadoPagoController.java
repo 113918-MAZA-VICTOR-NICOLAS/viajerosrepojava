@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ps.com.viajeros.dtos.OrderData;
+import ps.com.viajeros.dtos.payments.PreferenceTripDto;
 import ps.com.viajeros.services.impl.MercadoPagoServiceImpl;
 
 import java.util.Map;
@@ -21,8 +21,8 @@ public class MercadoPagoController {
     private MercadoPagoServiceImpl mercadoPagoService;
 
     @PostMapping("/mercadopago/crear-preferencia")
-    public Preference crearPreferencia(@RequestBody OrderData orderData) {
-        return mercadoPagoService.crearPreferencia(orderData);
+    public Preference crearPreferencia(@RequestBody PreferenceTripDto preferenceTrip) {
+        return mercadoPagoService.crearPreferencia(preferenceTrip);
     }
     @PostMapping("/webhook")
     public ResponseEntity<String> handleWebhook(@RequestBody Map<String, Object> payload) {

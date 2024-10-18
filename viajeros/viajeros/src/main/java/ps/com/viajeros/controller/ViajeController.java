@@ -6,17 +6,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ps.com.viajeros.dtos.chat.IsChoferDto;
 import ps.com.viajeros.dtos.viaje.NewRequestViajeDto;
+import ps.com.viajeros.dtos.viaje.PassengersDto;
 import ps.com.viajeros.dtos.viaje.SearchResultMatchDto;
 import ps.com.viajeros.dtos.viaje.ViajesRequestMatchDto;
 import ps.com.viajeros.entities.UserEntity;
+import ps.com.viajeros.entities.viajes.StatusEntity;
 import ps.com.viajeros.entities.viajes.ViajesEntity;
+import ps.com.viajeros.repository.StatusViajeRepository;
 import ps.com.viajeros.repository.UserRepository;
 import ps.com.viajeros.repository.ViajeRepository;
 import ps.com.viajeros.services.LocalidadService;
+import ps.com.viajeros.services.PaymentService;
 import ps.com.viajeros.services.ViajeService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/api/viajes")
 public class ViajeController {
@@ -29,6 +35,12 @@ public class ViajeController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PaymentService paymentService;
+
+    @Autowired
+    private StatusViajeRepository statusViajeRepository;
 
     // Endpoint para registrar un nuevo viaje
     @PostMapping("/register")
@@ -60,6 +72,7 @@ public class ViajeController {
     public List<SearchResultMatchDto> obtenerTodosLosViajesExceptOrigin(@RequestBody ViajesRequestMatchDto request) {
         return viajeService.findAllViajesCreatedExeptOrigin(request);
     }
+
     @GetMapping("/user/{userId}/created-inprogress")
     public ResponseEntity<List<SearchResultMatchDto>> getAllCreatedAndInProgressByUser(@PathVariable Long userId) {
         try {
@@ -92,6 +105,7 @@ public class ViajeController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al eliminar el viaje");
         }
     }
+
     @GetMapping("/trips/created")
     public ResponseEntity<List<SearchResultMatchDto>> getAllCreatedTrips() {
         try {
@@ -102,6 +116,7 @@ public class ViajeController {
         }
     }
 
+
     @GetMapping("/getChofer")
     public ResponseEntity<Long> choferByTrip(@RequestParam Long idTrip) {
         try {
@@ -111,6 +126,7 @@ public class ViajeController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
     @GetMapping("/isChofer/{tripId}/{userId}")
     public ResponseEntity<IsChoferDto> soyChofer(@PathVariable Long tripId, @PathVariable Long userId) {
         // Buscar el viaje por el ID
@@ -143,6 +159,7 @@ public class ViajeController {
         // Devolver la respuesta
         return ResponseEntity.ok(isChoferDto);
     }
+
     @GetMapping("/trip/{tripId}")
     public ResponseEntity<SearchResultMatchDto> getTripById(@PathVariable Long tripId) {
         try {
@@ -159,5 +176,64 @@ public class ViajeController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    @GetMapping("/passengers/{tripId}")
+    public ResponseEntity<List<PassengersDto>> getPassengersByTripId(@PathVariable Long tripId) {
+        try {
+            // Buscar el viaje por ID
+            ViajesEntity viaje = viajeRepository.findById(tripId)
+                    .orElseThrow(() -> new RuntimeException("Viaje no encontrado"));
+
+            // Obtener la lista de pasajeros del viaje
+            List<UserEntity> passengers = viaje.getPasajeros();
+
+            // Convertir la lista de UserEntity a una lista de PassengersDto
+            List<PassengersDto> passengerDtos = passengers.stream()
+                    .map(pasajero -> new PassengersDto(pasajero.getIdUser(), pasajero.getName(), pasajero.getLastname()))
+                    .collect(Collectors.toList());
+
+            // Devolver la respuesta con la lista de pasajeros
+            return ResponseEntity.ok(passengerDtos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @PostMapping("/{tripId}/remove-passenger/{userId}")
+    public ResponseEntity<String> removePassengerFromTrip(@PathVariable Long tripId, @PathVariable Long userId) {
+        try {
+            // Buscar el viaje y el pasajero
+            ViajesEntity viaje = viajeRepository.findById(tripId)
+                    .orElseThrow(() -> new RuntimeException("Viaje no encontrado"));
+            UserEntity pasajero = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("Pasajero no encontrado"));
+
+            // Eliminar al pasajero del viaje
+            viaje.getPasajeros().remove(pasajero);
+            viajeRepository.save(viaje);
+
+            // Solicitar reintegro
+            paymentService.requestReintegroByPassenger(tripId, userId);
+
+            return ResponseEntity.ok("Pasajero eliminado y reintegro solicitado con éxito");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al eliminar al pasajero y solicitar reintegro");
+        }
+    }
+    @PostMapping("/{tripId}/finalizar")
+    public ResponseEntity<String> finalizarViaje(@PathVariable Long tripId) {
+        ViajesEntity viaje = viajeRepository.findById(tripId)
+                .orElseThrow(() -> new RuntimeException("Viaje no encontrado"));
+
+        if (!viaje.getEstado().getIdState().equals(3L)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El viaje no está en progreso");
+        }
+        StatusEntity status = statusViajeRepository.getReferenceById(6L);
+        viaje.setEstado(status);
+        viajeRepository.save(viaje);
+
+        return ResponseEntity.ok("Viaje finalizado con éxito");
+    }
+
 }
 

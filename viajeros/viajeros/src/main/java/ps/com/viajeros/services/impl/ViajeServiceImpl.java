@@ -19,7 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -193,12 +195,19 @@ public class ViajeServiceImpl implements ViajeService {
             throw new IllegalArgumentException("Estados no encontrados");
         }
 
-        // Buscar los viajes filtrando por el usuario (chofer) y los estados
-        List<ViajesEntity> viajes = viajeRepository.findAllByChoferAndEstadoIn(user, estados);
+        // Buscar los viajes donde el usuario es chofer o pasajero, y los estados coinciden
+        List<ViajesEntity> viajesComoChofer = viajeRepository.findAllByChoferAndEstadoIn(user, estados);
+        List<ViajesEntity> viajesComoPasajero = viajeRepository.findAllByPasajerosContainingAndEstadoIn(user, estados);
+
+        // Combinar ambas listas y eliminar duplicados (en caso de que el usuario sea chofer y pasajero a la vez)
+        Set<ViajesEntity> viajes = new HashSet<>();
+        viajes.addAll(viajesComoChofer);
+        viajes.addAll(viajesComoPasajero);
 
         // Reutilizar tu método convertToDto
         return viajes.stream().map(this::convertToDto).collect(Collectors.toList());
     }
+
 
     @Override
     public List<SearchResultMatchDto> findAllFinishedByUser(Long userId) {
@@ -210,12 +219,20 @@ public class ViajeServiceImpl implements ViajeService {
         StatusEntity estado = statusViajeRepository.findById(6L)
                 .orElseThrow(() -> new IllegalArgumentException("Estado no encontrado"));
 
-        // Buscar los viajes filtrando por el usuario (chofer) y el estado
-        List<ViajesEntity> viajes = viajeRepository.findAllByChoferAndEstado(user, estado);
+        // Buscar los viajes donde el usuario es chofer y están finalizados
+        List<ViajesEntity> viajesComoChofer = viajeRepository.findAllByChoferAndEstado(user, estado);
 
-        // Reutilizar tu método convertToDto
-        return viajes.stream().map(this::convertToDto).collect(Collectors.toList());
+        // Buscar los viajes donde el usuario es pasajero y están finalizados
+        List<ViajesEntity> viajesComoPasajero = viajeRepository.findAllByPasajeroAndEstado(user, estado);
+
+        // Combinar ambas listas de viajes (eliminando duplicados si los hay)
+        Set<ViajesEntity> todosLosViajes = new HashSet<>(viajesComoChofer);
+        todosLosViajes.addAll(viajesComoPasajero);
+
+        // Convertir la lista a DTOs y devolver
+        return todosLosViajes.stream().map(this::convertToDto).collect(Collectors.toList());
     }
+
     @Override
     public void deleteViajeLogicamente(Long viajeId) {
         // Buscar el viaje por su ID
@@ -254,6 +271,8 @@ public class ViajeServiceImpl implements ViajeService {
                 .vehicleName(entity.getVehiculo().getBrand()+" " + entity.getVehiculo().getModel())
                 .driverRating(calculateAverageRating(entity.getChofer()))
                 .driverName(entity.getChofer().getName())
+                .driverId(entity.getChofer().getIdUser())
+                .status(entity.getEstado().getName())
                 .build();
     }
 

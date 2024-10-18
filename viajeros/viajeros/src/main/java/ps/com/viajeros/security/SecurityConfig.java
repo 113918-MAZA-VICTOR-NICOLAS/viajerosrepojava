@@ -35,7 +35,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/user/reset-password").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/chat-websocket/**").permitAll()
-
+                        .requestMatchers("/api/mercadopago/crear-preferencia").permitAll()
                         // Proteger todas las demás rutas
                         .anyRequest().authenticated()
                 );

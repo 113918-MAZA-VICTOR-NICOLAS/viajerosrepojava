@@ -36,6 +36,8 @@ public interface ViajeRepository extends JpaRepository<ViajesEntity, Long> {
     List<ViajesEntity> findAllByChoferAndEstado(UserEntity chofer, StatusEntity estado);
 
     List<ViajesEntity> findAllByChoferAndEstadoIn(UserEntity chofer, List<StatusEntity> estados);
+    List<ViajesEntity> findAllByPasajerosContainingAndEstadoIn(UserEntity pasajero, List<StatusEntity> estados);
+
 
     // Contar viajes finalizados como chofer
     Long countByChoferAndEstado(UserEntity chofer, StatusEntity estado);
@@ -43,5 +45,8 @@ public interface ViajeRepository extends JpaRepository<ViajesEntity, Long> {
     // Contar viajes pendientes como chofer
     Long countByChoferAndEstadoIn(UserEntity chofer, List<StatusEntity> estado);
 
+    // Nueva consulta para buscar viajes donde el usuario es pasajero y el estado es específico
+    @Query("SELECT v FROM ViajesEntity v JOIN v.pasajeros p WHERE p = :user AND v.estado = :estado")
+    List<ViajesEntity> findAllByPasajeroAndEstado(@Param("user") UserEntity user, @Param("estado") StatusEntity estado);
 
 }

@@ -24,6 +24,8 @@ public class SearchResultMatchDto {
     private String vehicleName;
     private double driverRating;
     private String driverName;
+    private Long driverId;
+    private String status;
 
     // Getters y setters
 }

@@ -5,8 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ps.com.viajeros.entities.UserEntity;
-import ps.com.viajeros.entities.chat.ChatEntity;
+import ps.com.viajeros.entities.user.UserEntity;
 
 import java.time.LocalDateTime;
 

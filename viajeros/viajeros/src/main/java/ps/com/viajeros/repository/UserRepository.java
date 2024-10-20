@@ -1,11 +1,12 @@
 package ps.com.viajeros.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import ps.com.viajeros.entities.UserEntity;
+import ps.com.viajeros.dtos.statistic.UsuariosPorDiaDto;
+import ps.com.viajeros.entities.user.UserEntity;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity,Long> {
@@ -24,6 +25,11 @@ public interface UserRepository extends JpaRepository<UserEntity,Long> {
 
     // Método para verificar si el teléfono ya existe
     Boolean existsByPhone(Long phone);
+    @Query("SELECT new ps.com.viajeros.dtos.statistic.UsuariosPorDiaDto(TO_CHAR(u.registrationDate, 'YYYY-MM-DD'), COUNT(u)) " +
+            "FROM UserEntity u " +
+            "GROUP BY TO_CHAR(u.registrationDate, 'YYYY-MM-DD') " +
+            "ORDER BY TO_CHAR(u.registrationDate, 'YYYY-MM-DD') ASC")
+    List<UsuariosPorDiaDto> getUsuariosNuevosPorDia();
 
 
 }

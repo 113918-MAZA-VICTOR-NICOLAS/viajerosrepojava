@@ -1,10 +1,12 @@
-package ps.com.viajeros.entities;
+package ps.com.viajeros.entities.user;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ps.com.viajeros.entities.ValuationEntity;
+import ps.com.viajeros.entities.VehicleEntity;
 import ps.com.viajeros.entities.pet.PetEntity;
 
 import java.time.LocalDateTime;
@@ -60,6 +62,10 @@ public class UserEntity {
 
     @Column(name = "registration_date", nullable = false)
     private LocalDateTime registrationDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rol_id", nullable = false)
+    private RolEntity rol;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<VehicleEntity> vehicles;

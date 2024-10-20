@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ps.com.viajeros.dtos.pet.NewPetRequestDto;
 import ps.com.viajeros.dtos.pet.PetResponseDto;
-import ps.com.viajeros.entities.UserEntity;
+import ps.com.viajeros.entities.user.UserEntity;
 import ps.com.viajeros.entities.pet.PetEntity;
 import ps.com.viajeros.entities.pet.SizePetEntity;
 import ps.com.viajeros.entities.pet.TypePetEntity;

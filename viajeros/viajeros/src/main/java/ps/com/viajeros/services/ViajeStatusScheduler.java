@@ -6,7 +6,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import ps.com.viajeros.entities.UserEntity;
 import ps.com.viajeros.entities.viajes.StatusEntity;
 import ps.com.viajeros.entities.viajes.ViajesEntity;
 import ps.com.viajeros.repository.StatusViajeRepository;

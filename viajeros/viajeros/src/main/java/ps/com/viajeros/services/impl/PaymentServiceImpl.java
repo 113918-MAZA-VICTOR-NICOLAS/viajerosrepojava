@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ps.com.viajeros.dtos.payments.PaymentDto;
 import ps.com.viajeros.entities.payment.PaymentEntity;
-import ps.com.viajeros.entities.UserEntity;
+import ps.com.viajeros.entities.user.UserEntity;
 import ps.com.viajeros.entities.payment.ReintegroEntity;
 import ps.com.viajeros.entities.payment.ReintegroMotivo;
 import ps.com.viajeros.entities.payment.ReintegroStatus;

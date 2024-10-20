@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ps.com.viajeros.entities.payment.PaymentEntity;
 import ps.com.viajeros.entities.chat.ChatEntity;
-import ps.com.viajeros.entities.UserEntity;
+import ps.com.viajeros.entities.user.UserEntity;
 import ps.com.viajeros.entities.VehicleEntity;
 import ps.com.viajeros.entities.viajes.directions.LocalidadEntity;
 
@@ -85,4 +85,7 @@ public class ViajesEntity {
     @OneToMany(mappedBy = "viaje", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PaymentEntity> pagos; // Lista de pagos realizados para este viaje
 
+
+    @OneToMany(mappedBy = "viaje", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<IncidenteEntity> incidentes;
 }

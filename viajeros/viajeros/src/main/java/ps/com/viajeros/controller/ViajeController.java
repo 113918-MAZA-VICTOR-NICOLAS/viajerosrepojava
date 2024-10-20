@@ -5,22 +5,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ps.com.viajeros.dtos.chat.IsChoferDto;
+import ps.com.viajeros.dtos.statistic.EstadoViajesDto;
+import ps.com.viajeros.dtos.statistic.ViajesPorMesDto;
 import ps.com.viajeros.dtos.viaje.NewRequestViajeDto;
 import ps.com.viajeros.dtos.viaje.PassengersDto;
 import ps.com.viajeros.dtos.viaje.SearchResultMatchDto;
 import ps.com.viajeros.dtos.viaje.ViajesRequestMatchDto;
-import ps.com.viajeros.entities.UserEntity;
+import ps.com.viajeros.entities.user.UserEntity;
 import ps.com.viajeros.entities.viajes.StatusEntity;
 import ps.com.viajeros.entities.viajes.ViajesEntity;
 import ps.com.viajeros.repository.StatusViajeRepository;
 import ps.com.viajeros.repository.UserRepository;
 import ps.com.viajeros.repository.ViajeRepository;
-import ps.com.viajeros.services.LocalidadService;
 import ps.com.viajeros.services.PaymentService;
 import ps.com.viajeros.services.ViajeService;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -230,10 +231,21 @@ public class ViajeController {
         }
         StatusEntity status = statusViajeRepository.getReferenceById(6L);
         viaje.setEstado(status);
+        viaje.setFechaHoraFin(LocalDateTime.now());
         viajeRepository.save(viaje);
 
         return ResponseEntity.ok("Viaje finalizado con éxito");
     }
+    @GetMapping("/finalizados-por-mes")
+    public ResponseEntity<List<ViajesPorMesDto>> getViajesFinalizadosPorMes() {
+        List<ViajesPorMesDto> viajesFinalizados = viajeService.getViajesFinalizadosPorMes();
+        return ResponseEntity.ok(viajesFinalizados);
+    }
 
+    @GetMapping("/estado")
+    public ResponseEntity<List<EstadoViajesDto>> getEstadoDeLosViajes() {
+        List<EstadoViajesDto> estadoViajes = viajeService.getEstadoDeLosViajes();
+        return ResponseEntity.ok(estadoViajes);
+    }
 }
 

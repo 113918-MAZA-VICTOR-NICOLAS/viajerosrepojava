@@ -4,8 +4,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import ps.com.viajeros.dtos.viaje.SearchResultMatchDto;
-import ps.com.viajeros.entities.UserEntity;
+import ps.com.viajeros.dtos.statistic.EstadoViajesDto;
+import ps.com.viajeros.dtos.statistic.ViajesPorMesDto;
+import ps.com.viajeros.entities.user.UserEntity;
 import ps.com.viajeros.entities.viajes.StatusEntity;
 import ps.com.viajeros.entities.viajes.ViajesEntity;
 import ps.com.viajeros.entities.viajes.directions.LocalidadEntity;
@@ -49,4 +50,18 @@ public interface ViajeRepository extends JpaRepository<ViajesEntity, Long> {
     @Query("SELECT v FROM ViajesEntity v JOIN v.pasajeros p WHERE p = :user AND v.estado = :estado")
     List<ViajesEntity> findAllByPasajeroAndEstado(@Param("user") UserEntity user, @Param("estado") StatusEntity estado);
 
+    @Query("SELECT new ps.com.viajeros.dtos.statistic.ViajesPorMesDto(TO_CHAR(v.fechaHoraFin, 'YYYY-MM'), COUNT(v)) " +
+            "FROM ViajesEntity v " +
+            "WHERE v.estado.name = 'FINISHED' " +
+            "GROUP BY TO_CHAR(v.fechaHoraFin, 'YYYY-MM') " +
+            "ORDER BY TO_CHAR(v.fechaHoraFin, 'YYYY-MM') ASC")
+    List<ViajesPorMesDto> getViajesFinalizadosPorMes();
+
+
+
+
+    @Query("SELECT new ps.com.viajeros.dtos.statistic.EstadoViajesDto(v.estado.name, COUNT(v)) " +
+            "FROM ViajesEntity v " +
+            "GROUP BY v.estado.name")
+    List<EstadoViajesDto> getEstadoDeLosViajes();
 }

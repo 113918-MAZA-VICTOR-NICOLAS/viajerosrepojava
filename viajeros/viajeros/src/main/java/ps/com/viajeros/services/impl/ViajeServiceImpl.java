@@ -4,10 +4,13 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ps.com.viajeros.dtos.admin.ViajeDto;
+import ps.com.viajeros.dtos.statistic.EstadoViajesDto;
+import ps.com.viajeros.dtos.statistic.ViajesPorMesDto;
 import ps.com.viajeros.dtos.viaje.NewRequestViajeDto;
 import ps.com.viajeros.dtos.viaje.SearchResultMatchDto;
 import ps.com.viajeros.dtos.viaje.ViajesRequestMatchDto;
-import ps.com.viajeros.entities.UserEntity;
+import ps.com.viajeros.entities.user.UserEntity;
 import ps.com.viajeros.entities.ValuationEntity;
 import ps.com.viajeros.entities.VehicleEntity;
 import ps.com.viajeros.entities.viajes.StatusEntity;
@@ -16,9 +19,7 @@ import ps.com.viajeros.entities.viajes.directions.LocalidadEntity;
 import ps.com.viajeros.repository.*;
 import ps.com.viajeros.services.ViajeService;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -313,4 +314,44 @@ public class ViajeServiceImpl implements ViajeService {
         return convertToDto(viaje);
     }
 
+
+    // Obtener todos los viajes
+    public List<ViajeDto> getAllViajes() {
+        List<ViajesEntity> viajes = viajeRepository.findAll();  // Obtiene todos los viajes
+        return viajes.stream().map(this::convertToViajesDto).toList();  // Convierte las entidades a DTO
+    }
+
+    // Filtrar viajes por estado
+    public List<ViajeDto> getViajesByStatus(String statusName) {
+        // Busca la entidad StatusEntity por nombre de estado
+        StatusEntity status = statusViajeRepository.findByName(statusName)
+                .orElseThrow(() -> new RuntimeException("Estado no encontrado: " + statusName));
+
+        // Filtra los viajes que tengan este estado
+        List<ViajesEntity> viajes = viajeRepository.findByEstado(status);
+
+        return viajes.stream().map(this::convertToViajesDto).toList();  // Convierte las entidades a DTO
+    }
+    // Método auxiliar para convertir ViajesEntity a ViajeDto
+    private ViajeDto convertToViajesDto(ViajesEntity viaje) {
+        return new ViajeDto(
+                viaje.getIdViaje(),
+                viaje.getChofer().getName() + " " + viaje.getChofer().getLastname(),  // Nombre del chofer
+                viaje.getPasajeros().stream().map(p -> p.getName() + " " + p.getLastname()).toList(),  // Lista de nombres de pasajeros
+                viaje.getLocalidadInicio().getLocalidad(),  // Origen
+                viaje.getLocalidadFin().getLocalidad(),  // Destino
+                viaje.getFechaHoraInicio(),  // Fecha de inicio
+                viaje.getEstado().getName()  // Estado
+        );
+    }
+    @Override
+    public List<ViajesPorMesDto> getViajesFinalizadosPorMes() {
+        // Lógica para obtener viajes finalizados por mes
+        List<ViajesPorMesDto> viajesFinalizados = viajeRepository.getViajesFinalizadosPorMes();
+        return viajesFinalizados;
+    }
+    @Override
+    public List<EstadoViajesDto> getEstadoDeLosViajes() {
+        return viajeRepository.getEstadoDeLosViajes();
+    }
 }

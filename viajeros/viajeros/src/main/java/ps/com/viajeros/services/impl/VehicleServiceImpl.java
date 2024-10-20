@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ps.com.viajeros.dtos.car.CarResponseDto;
 import ps.com.viajeros.dtos.car.NewCarRequestDto;
-import ps.com.viajeros.entities.UserEntity;
+import ps.com.viajeros.entities.user.UserEntity;
 import ps.com.viajeros.entities.VehicleEntity;
 import ps.com.viajeros.repository.UserRepository;
 import ps.com.viajeros.repository.VehicleRepository;

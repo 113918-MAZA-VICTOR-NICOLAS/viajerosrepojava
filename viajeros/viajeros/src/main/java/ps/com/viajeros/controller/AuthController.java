@@ -9,8 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ps.com.viajeros.dtos.login.LoginRequest;
 import ps.com.viajeros.dtos.login.LoginResponseDto;
-import ps.com.viajeros.dtos.user.NewUserResponseDto;
-import ps.com.viajeros.entities.UserEntity;
+import ps.com.viajeros.entities.user.UserEntity;
 import ps.com.viajeros.security.services.JwtService;
 import ps.com.viajeros.services.LoginService;
 import ps.com.viajeros.services.UserService;
@@ -45,19 +44,22 @@ public class AuthController {
 
             // Obtén los detalles del usuario autenticado (por ejemplo, id y nombre)
             UserEntity usuario = userService.getUserByEmail(loginRequest.getUsername());
+            String role = usuario.getRol().getRolName();  // Obtener el nombre del rol
 
             // Envuelve el token y otros detalles en un objeto JSON
             Map<String, Object> response = new HashMap<>();
             response.put("token", token);
             response.put("id", usuario.getIdUser());
             response.put("name", usuario.getName());
+            response.put("role", role);  // Incluir el rol en la respuesta
 
-            // Devuelve el objeto JSON con el token y los datos del usuario
+            // Devuelve el objeto JSON con el token, rol y los datos del usuario
             return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(loginResponseDto);
         }
     }
+
 
 
 

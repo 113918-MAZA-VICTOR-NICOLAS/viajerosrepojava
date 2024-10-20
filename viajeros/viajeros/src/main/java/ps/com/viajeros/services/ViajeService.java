@@ -3,6 +3,9 @@ package ps.com.viajeros.services;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ps.com.viajeros.dtos.admin.ViajeDto;
+import ps.com.viajeros.dtos.statistic.EstadoViajesDto;
+import ps.com.viajeros.dtos.statistic.ViajesPorMesDto;
 import ps.com.viajeros.dtos.viaje.NewRequestViajeDto;
 import ps.com.viajeros.dtos.viaje.SearchResultMatchDto;
 import ps.com.viajeros.dtos.viaje.ViajesRequestMatchDto;
@@ -32,4 +35,13 @@ public interface ViajeService {
 
 
     SearchResultMatchDto convertToDtoById(ViajesEntity viaje);
+
+
+    List<ViajeDto> getAllViajes();
+
+    List<ViajeDto> getViajesByStatus(String statusName);
+
+    List<ViajesPorMesDto> getViajesFinalizadosPorMes();
+
+    List<EstadoViajesDto> getEstadoDeLosViajes();
 }

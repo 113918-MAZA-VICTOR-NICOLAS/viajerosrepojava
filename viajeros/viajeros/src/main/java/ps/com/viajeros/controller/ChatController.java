@@ -12,7 +12,7 @@ import ps.com.viajeros.dtos.chat.IsChoferDto;
 import ps.com.viajeros.dtos.chat.MessageDTO;
 import ps.com.viajeros.entities.chat.ChatEntity;
 import ps.com.viajeros.entities.chat.MessageEntity;
-import ps.com.viajeros.entities.UserEntity;
+import ps.com.viajeros.entities.user.UserEntity;
 import ps.com.viajeros.entities.viajes.ViajesEntity;
 import ps.com.viajeros.repository.ChatRepository;
 import ps.com.viajeros.repository.MessageRepository;

@@ -6,13 +6,12 @@ import org.springframework.stereotype.Service;
 import ps.com.viajeros.dtos.car.VehicleDTO;
 import ps.com.viajeros.dtos.login.LoginRequest;
 import ps.com.viajeros.dtos.pet.PetDto;
+import ps.com.viajeros.dtos.statistic.UsuariosPorDiaDto;
 import ps.com.viajeros.dtos.user.*;
-import ps.com.viajeros.entities.UserEntity;
+import ps.com.viajeros.entities.user.RolEntity;
+import ps.com.viajeros.entities.user.UserEntity;
 import ps.com.viajeros.entities.viajes.StatusEntity;
-import ps.com.viajeros.repository.StatusViajeRepository;
-import ps.com.viajeros.repository.UserRepository;
-import ps.com.viajeros.repository.ValuationRepository;
-import ps.com.viajeros.repository.ViajeRepository;
+import ps.com.viajeros.repository.*;
 import ps.com.viajeros.services.UserService;
 
 import java.time.LocalDateTime;
@@ -35,15 +34,21 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private StatusViajeRepository statusRepository;
 
+    @Autowired
+    RolRepository rolRepository;
+
     @Override
     public NewUserResponseDto registerUser(NewUserDto newUserDto) {
         // Convertir UserViajeros (DTO de entrada) a UserEntity (entidad)
+        RolEntity rol = rolRepository.getReferenceById(2L);
+
         UserEntity userEntity = new UserEntity();
         userEntity.setName(newUserDto.getName());
         userEntity.setEmail(newUserDto.getEmail());
         userEntity.setPhone(newUserDto.getPhone());
         userEntity.setPassword(newUserDto.getPassword());
         userEntity.setRegistrationDate(LocalDateTime.now());
+        userEntity.setRol(rol);
 
         // Guardar en la base de datos
         UserEntity savedUser = userRepository.save(userEntity);
@@ -287,5 +292,12 @@ public class UserServiceImpl implements UserService {
                 .averageRating(totalAverageRating)
                 .fullName(fullName)
                 .build();
+    }
+    @Override
+    public List<UsuariosPorDiaDto> getUsuariosNuevosPorDia() {
+        // Aquí implementas la lógica para consultar los usuarios nuevos por día desde la base de datos
+        // Ejemplo de estructura de respuesta:
+        List<UsuariosPorDiaDto> usuariosNuevosPorDia = userRepository.getUsuariosNuevosPorDia();
+        return usuariosNuevosPorDia;
     }
 }

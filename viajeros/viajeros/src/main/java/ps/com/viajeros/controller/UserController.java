@@ -4,8 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ps.com.viajeros.dtos.statistic.UsuariosPorDiaDto;
 import ps.com.viajeros.dtos.user.*;
-import ps.com.viajeros.entities.UserEntity;
+import ps.com.viajeros.entities.user.UserEntity;
 import ps.com.viajeros.repository.UserRepository;
 import ps.com.viajeros.services.impl.EmailService;
 import ps.com.viajeros.services.UserService;
@@ -207,6 +208,10 @@ public class UserController {
         String phoneRegex = "^[0-9]{7,15}$"; // Asume que el teléfono tiene entre 7 y 15 dígitos
         return identifier.matches(phoneRegex);
     }
-
+    @GetMapping("/nuevos-por-dia")
+    public ResponseEntity<List<UsuariosPorDiaDto>> getUsuariosNuevosPorDia() {
+        List<UsuariosPorDiaDto> usuariosNuevos = userService.getUsuariosNuevosPorDia();
+        return ResponseEntity.ok(usuariosNuevos);
+    }
 
 }

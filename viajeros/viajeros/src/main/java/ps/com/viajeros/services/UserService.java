@@ -2,8 +2,9 @@ package ps.com.viajeros.services;
 
 import org.springframework.stereotype.Service;
 import ps.com.viajeros.dtos.login.LoginRequest;
+import ps.com.viajeros.dtos.statistic.UsuariosPorDiaDto;
 import ps.com.viajeros.dtos.user.*;
-import ps.com.viajeros.entities.UserEntity;
+import ps.com.viajeros.entities.user.UserEntity;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,4 +43,6 @@ public interface UserService {
     UserDataDto getDataUserById(Long idUser);
 
     UserSummaryDto getUserSummary(Long userId);
+
+    List<UsuariosPorDiaDto> getUsuariosNuevosPorDia();
 }

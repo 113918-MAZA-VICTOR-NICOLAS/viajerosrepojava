@@ -1,5 +1,6 @@
 package ps.com.viajeros.services.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -278,7 +279,7 @@ public class ViajeServiceImpl implements ViajeService {
     }
 
     private double calculateAverageRating(UserEntity chofer) {
-        List<ValuationEntity> valuations = chofer.getValuations(); // Asumiendo que tienes un getter para las valoraciones
+        List<ValuationEntity> valuations = chofer.getReceivedValuations(); // Asumiendo que tienes un getter para las valoraciones
         if (valuations.isEmpty()) {
             return 0; // Devuelve 0 si no hay valoraciones
         }
@@ -354,4 +355,40 @@ public class ViajeServiceImpl implements ViajeService {
     public List<EstadoViajesDto> getEstadoDeLosViajes() {
         return viajeRepository.getEstadoDeLosViajes();
     }
+
+    @Override
+    public ViajesEntity getTripById(Long tripId) {
+        return viajeRepository.findById(tripId)
+                .orElseThrow(() -> new RuntimeException("Viaje no encontrado"));
+    }
+
+
+    @Override
+    public ViajesEntity updateTrip(Long id, NewRequestViajeDto tripDto) {
+        ViajesEntity existingTrip = viajeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Viaje no encontrado con id: " + id));
+
+        existingTrip.setVehiculo(vehicleRepository.findById(tripDto.getIdVehiculo())
+                .orElseThrow(() -> new EntityNotFoundException("Vehículo no encontrado con id: " + tripDto.getIdVehiculo())));
+
+        existingTrip.setLocalidadInicio(localidadRepository.findById(tripDto.getLocalidadInicioId())
+                .orElseThrow(() -> new EntityNotFoundException("Localidad de inicio no encontrada")));
+
+        existingTrip.setLocalidadFin(localidadRepository.findById(tripDto.getLocalidadFinId())
+                .orElseThrow(() -> new EntityNotFoundException("Localidad de fin no encontrada")));
+
+        existingTrip.setFechaHoraInicio(tripDto.getFechaHoraInicio());
+        existingTrip.setGastoTotal(tripDto.getGastoTotal());
+        existingTrip.setAsientosDisponibles(tripDto.getAsientosDisponibles());
+        existingTrip.setMascotas(tripDto.isAceptaMascotas());
+        existingTrip.setFumar(tripDto.isAceptaFumar());
+
+        // Actualizamos el viaje
+        ViajesEntity updatedTrip = viajeRepository.save(existingTrip);
+
+        return updatedTrip;
+    }
+
+
+
 }

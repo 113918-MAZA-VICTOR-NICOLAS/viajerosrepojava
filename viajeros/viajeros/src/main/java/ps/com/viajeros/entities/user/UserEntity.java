@@ -73,7 +73,11 @@ public class UserEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PetEntity> pets;
 
-    // Relación Uno a Muchos con ValuationEntity
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ValuationEntity> valuations;
+    // Valoraciones dadas por el usuario
+    @OneToMany(mappedBy = "userWhoValuated", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ValuationEntity> givenValuations;
+
+    // Valoraciones recibidas por el usuario
+    @OneToMany(mappedBy = "userValuated", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ValuationEntity> receivedValuations;
 }

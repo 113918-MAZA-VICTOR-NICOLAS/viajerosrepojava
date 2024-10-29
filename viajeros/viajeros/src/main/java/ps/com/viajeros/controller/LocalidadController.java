@@ -31,4 +31,13 @@ public class LocalidadController {
         // Retornar las localidades encontradas en formato JSON
         return ResponseEntity.ok(localidades);
     }
+    @GetMapping("/id")
+    public ResponseEntity<Map<String, String>> searchLocalidadById(@RequestParam Long id) {
+        String localidad = localidadService.getLocalidadById(id);
+        Map<String, String> response = new HashMap<>();
+        response.put("localidad", localidad);
+        return ResponseEntity.ok(response);
+    }
+
+
 }

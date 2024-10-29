@@ -7,4 +7,6 @@ import java.util.Map;
 
 public interface LocalidadService {
     List<Map<String, Object>> buscarLocalidadesPorNombre(String nombre);
+
+    String getLocalidadById(Long id);;
 }

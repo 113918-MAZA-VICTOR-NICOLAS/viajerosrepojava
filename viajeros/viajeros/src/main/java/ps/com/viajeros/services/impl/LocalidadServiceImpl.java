@@ -1,6 +1,8 @@
 package ps.com.viajeros.services.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import ps.com.viajeros.entities.viajes.directions.LocalidadEntity;
 import ps.com.viajeros.repository.LocalidadRepository;
@@ -28,6 +30,12 @@ public class LocalidadServiceImpl implements LocalidadService {
             localidadMap.put("nombre", localidad.getLocalidad() + " (" + localidad.getProvincia().getProvincia() + ")"); // Añadir la provincia
             return localidadMap;
         }).collect(Collectors.toList());
+    }
+    @Override
+    public String getLocalidadById(Long id) {
+        LocalidadEntity localidad = localidadRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Localidad no encontrada con el id: " + id));
+        return localidad.getLocalidad(); // Devuelve solo el nombre de la localidad
     }
 
 

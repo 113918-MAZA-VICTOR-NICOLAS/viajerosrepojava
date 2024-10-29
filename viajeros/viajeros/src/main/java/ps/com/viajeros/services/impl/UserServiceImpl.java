@@ -44,6 +44,7 @@ public class UserServiceImpl implements UserService {
 
         UserEntity userEntity = new UserEntity();
         userEntity.setName(newUserDto.getName());
+        userEntity.setLastname("");
         userEntity.setEmail(newUserDto.getEmail());
         userEntity.setPhone(newUserDto.getPhone());
         userEntity.setPassword(newUserDto.getPassword());
@@ -233,7 +234,7 @@ public class UserServiceImpl implements UserService {
                         pet.getSize().getSizeName(), pet.getType().getTypeName()))
                 .collect(Collectors.toList());
 
-        List<ValuationDTO> valuations = userEntity.getValuations()
+        List<ValuationDTO> valuations = userEntity.getReceivedValuations()
                 .stream()
                 .map(valuation -> new ValuationDTO(valuation.getIdValuation(), valuation.getIdTrip(),
                         valuation.getComments(), valuation.getRating()))

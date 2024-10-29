@@ -247,5 +247,52 @@ public class ViajeController {
         List<EstadoViajesDto> estadoViajes = viajeService.getEstadoDeLosViajes();
         return ResponseEntity.ok(estadoViajes);
     }
+
+    @GetMapping("/getEdit/{tripId}")
+    public ResponseEntity<NewRequestViajeDto> getTripByIdForEdit(@PathVariable Long tripId) {
+        ViajesEntity viaje = viajeService.getTripById(tripId);
+
+        // Convertir la entidad ViajesEntity a NewTripRequestDto
+        NewRequestViajeDto tripDto = new NewRequestViajeDto(
+                viaje.getVehiculo().getIdCar(),
+                viaje.getChofer().getIdUser(),
+                viaje.getLocalidadInicio().getId(),
+                viaje.getLocalidadFin().getId(),
+                viaje.getFechaHoraInicio(),
+                viaje.getGastoTotal(),
+                viaje.getAsientosDisponibles(),
+                viaje.isMascotas(),
+                viaje.isFumar()
+        );
+
+        return ResponseEntity.ok(tripDto);
+    }
+    @PutMapping("/trip/{id}")
+    public ResponseEntity<SearchResultMatchDto> updateTrip(@PathVariable Long id, @RequestBody NewRequestViajeDto tripDto) {
+        ViajesEntity updatedTrip = viajeService.updateTrip(id, tripDto);
+        SearchResultMatchDto responseDto = mapToSearchResultMatchDto(updatedTrip); // Convertir la entidad a DTO
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+    // Método para convertir ViajesEntity a SearchResultMatchDto
+    public SearchResultMatchDto mapToSearchResultMatchDto(ViajesEntity trip) {
+        return SearchResultMatchDto.builder()
+                .tripId(trip.getIdViaje())
+                .origin(trip.getLocalidadInicio().getLocalidad())
+                .destination(trip.getLocalidadFin().getLocalidad())
+                .availableSeats(trip.getAsientosDisponibles())
+                .date(trip.getFechaHoraInicio())
+                .departureTime(trip.getFechaHoraInicio())
+                .arrivalTime(trip.getFechaHoraFin())
+                .estimatedDuration("2 horas") // Por ejemplo, si tienes un campo calculado
+                .petsAllowed(trip.isMascotas())
+                .smokersAllowed(trip.isFumar())
+                .vehicleName(trip.getVehiculo().getBrand() + " " + trip.getVehiculo().getModel())
+                .driverRating(5.0) // Puedes calcular o asignar el valor real del rating del chofer
+                .driverName(trip.getChofer().getName())
+                .driverId(trip.getChofer().getIdUser())
+                .status(trip.getEstado().getName()) // Mapea el estado a un String
+                .build();
+    }
+
 }
 

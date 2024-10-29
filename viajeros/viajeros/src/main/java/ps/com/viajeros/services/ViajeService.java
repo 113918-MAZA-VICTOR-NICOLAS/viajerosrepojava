@@ -44,4 +44,8 @@ public interface ViajeService {
     List<ViajesPorMesDto> getViajesFinalizadosPorMes();
 
     List<EstadoViajesDto> getEstadoDeLosViajes();
+
+    ViajesEntity getTripById(Long tripId);
+
+    ViajesEntity updateTrip(Long id, NewRequestViajeDto tripDto);
 }

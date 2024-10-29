@@ -1,6 +1,7 @@
 package ps.com.viajeros.entities.viajes;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +26,7 @@ public class IncidenteEntity {
     // Relación Uno a Uno con ViajesEntity
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_viaje", nullable = false)
+    @JsonIgnore  // Ignora la serialización de esta relación
     private ViajesEntity viaje;
 
     @Column(name = "descripcion", nullable = false, length = 500)
@@ -38,7 +40,16 @@ public class IncidenteEntity {
     private LocalDateTime fechaIncidente;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "denunciado", nullable = false)
+    @JsonIgnore  // Ignora la serialización de esta relación
+    private UserEntity denunciado;
+
+    @Column(name = "is_pasajero", nullable = false)
+    private Boolean isPasajero;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reportado_por", nullable = false)
+    @JsonIgnore  // Ignora la serialización de esta relación
     private UserEntity reportadoPor;
 
     @Enumerated(EnumType.STRING)

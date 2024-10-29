@@ -1,5 +1,6 @@
 package ps.com.viajeros.entities.viajes;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -36,6 +37,7 @@ public class ViajesEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_vehiculo", nullable = false)
+    @JsonIgnore
     private VehicleEntity vehiculo;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -60,6 +62,7 @@ public class ViajesEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "estado_id")
+    @JsonIgnore
     private StatusEntity estado;
 
     @Column(name = "recordatorio_enviado", nullable = false)
@@ -67,6 +70,7 @@ public class ViajesEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_chofer", nullable = false)
+    @JsonIgnore
     private UserEntity chofer;
 
     // Relación con LocalidadEntity para localidad de inicio

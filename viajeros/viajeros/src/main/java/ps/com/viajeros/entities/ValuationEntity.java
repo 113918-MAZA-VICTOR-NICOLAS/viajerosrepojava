@@ -30,8 +30,11 @@ public class ValuationEntity {
 
     // Relación Muchos a Uno con UserEntity
     @ManyToOne
-    @JoinColumn(name = "id_user", nullable = false)
-    private UserEntity user;
+    @JoinColumn(name = "id_userValuated", nullable = false)
+    private UserEntity userValuated;
 
+    @ManyToOne
+    @JoinColumn(name = "id_userWhoValuated", nullable = false)
+    private UserEntity userWhoValuated;
 
 }

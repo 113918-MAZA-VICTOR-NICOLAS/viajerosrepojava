@@ -3,6 +3,7 @@ package ps.com.viajeros.services.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ps.com.viajeros.dtos.payments.PaymentDto;
+import ps.com.viajeros.dtos.payments.ResponsePaymentDto;
 import ps.com.viajeros.entities.payment.PaymentEntity;
 import ps.com.viajeros.entities.user.UserEntity;
 import ps.com.viajeros.entities.payment.ReintegroEntity;
@@ -112,6 +113,7 @@ public class PaymentServiceImpl implements PaymentService {
         reintegro.setFechaReintegro(LocalDateTime.now());  // Fecha de la solicitud de reintegro
         reintegro.setReintegroMotivo(ReintegroMotivo.PASSENGER_CANCEL);  // Motivo del reintegro
 
+
         // Guardar el reintegro
         reintegroRepository.save(reintegro);
 
@@ -120,4 +122,24 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRepository.save(payment);  // Guardar los cambios en el pago
     }
 
+    @Override
+    public ResponsePaymentDto getPaymentById(Long id) {
+        return paymentRepository.findById(id).map(this::convertToDto).orElse(null);
+    }
+
+    private ResponsePaymentDto convertToDto(PaymentEntity payment) {
+        ResponsePaymentDto dto = new ResponsePaymentDto();
+        dto.setIdPayment(payment.getIdPayment());
+        dto.setPaymentId(payment.getPaymentId());
+        dto.setStatus(payment.getStatus());
+        dto.setExternalReference(payment.getExternalReference());
+        dto.setPaymentType(payment.getPaymentType());
+        dto.setMerchantOrderId(payment.getMerchantOrderId());
+        dto.setIdPasajero(payment.getPasajero().getIdUser());
+        dto.setNombreCompletoPasajero(payment.getPasajero().getName() + " " + payment.getPasajero().getLastname());
+        dto.setCuilPasajero(payment.getPasajero().getCuil());
+        dto.setCbuPasajero(payment.getPasajero().getCbu());
+        dto.setFechaPago(payment.getFechaPago());
+        return dto;
+    }
 }

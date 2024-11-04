@@ -1,9 +1,9 @@
 package ps.com.viajeros.services;
 
 import org.springframework.stereotype.Service;
-import ps.com.viajeros.dtos.payments.PaymentDto;
-import ps.com.viajeros.dtos.payments.PreferenceTripDto;
-import ps.com.viajeros.dtos.payments.ResponsePaymentDto;
+import ps.com.viajeros.dtos.payments.*;
+
+import java.util.List;
 
 @Service
 public interface PaymentService {
@@ -12,4 +12,8 @@ public interface PaymentService {
     void requestReintegroByPassenger(Long tripId, Long userId);
 
     ResponsePaymentDto getPaymentById(Long id);
+
+    List<PagoPasajeroDto> obtenerPagosPasajeros();
+
+    void actualizarEstadoPagoChofer(RequestDriverPaymentDto request);
 }

@@ -11,6 +11,7 @@ import ps.com.viajeros.entities.viajes.StatusEntity;
 import ps.com.viajeros.entities.viajes.ViajesEntity;
 import ps.com.viajeros.entities.viajes.directions.LocalidadEntity;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -64,4 +65,6 @@ public interface ViajeRepository extends JpaRepository<ViajesEntity, Long> {
             "FROM ViajesEntity v " +
             "GROUP BY v.estado.name")
     List<EstadoViajesDto> getEstadoDeLosViajes();
+
+    List<ViajesEntity> findByfechaHoraInicioBetween(LocalDateTime startDate, LocalDateTime endDate);
 }

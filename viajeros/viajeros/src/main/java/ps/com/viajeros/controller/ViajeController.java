@@ -11,9 +11,13 @@ import ps.com.viajeros.dtos.viaje.NewRequestViajeDto;
 import ps.com.viajeros.dtos.viaje.PassengersDto;
 import ps.com.viajeros.dtos.viaje.SearchResultMatchDto;
 import ps.com.viajeros.dtos.viaje.ViajesRequestMatchDto;
+import ps.com.viajeros.entities.notification.NotificationEntity;
+import ps.com.viajeros.entities.notification.NotificationStatus;
+import ps.com.viajeros.entities.notification.NotificationType;
 import ps.com.viajeros.entities.user.UserEntity;
 import ps.com.viajeros.entities.viajes.StatusEntity;
 import ps.com.viajeros.entities.viajes.ViajesEntity;
+import ps.com.viajeros.repository.NotificationRepository;
 import ps.com.viajeros.repository.StatusViajeRepository;
 import ps.com.viajeros.repository.UserRepository;
 import ps.com.viajeros.repository.ViajeRepository;
@@ -42,6 +46,9 @@ public class ViajeController {
 
     @Autowired
     private StatusViajeRepository statusViajeRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     // Endpoint para registrar un nuevo viaje
     @PostMapping("/register")
@@ -223,19 +230,44 @@ public class ViajeController {
     }
     @PostMapping("/{tripId}/finalizar")
     public ResponseEntity<String> finalizarViaje(@PathVariable Long tripId) {
+        // Buscar el viaje por su ID
         ViajesEntity viaje = viajeRepository.findById(tripId)
                 .orElseThrow(() -> new RuntimeException("Viaje no encontrado"));
 
+        // Verificar que el estado del viaje sea "in progress" (ID 3)
         if (!viaje.getEstado().getIdState().equals(3L)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El viaje no está en progreso");
         }
+
+        // Cambiar el estado del viaje a "finalizado" (ID 6)
         StatusEntity status = statusViajeRepository.getReferenceById(6L);
         viaje.setEstado(status);
         viaje.setFechaHoraFin(LocalDateTime.now());
         viajeRepository.save(viaje);
 
+        // Crear una notificación para el chofer
+        NotificationEntity choferNotification = new NotificationEntity();
+        choferNotification.setUser(viaje.getChofer());
+        choferNotification.setMessage("Tu viaje hacia " + viaje.getLocalidadFin().getProvincia().getProvincia() + " ha sido finalizado.");
+        choferNotification.setStatus(NotificationStatus.UNREAD);
+        choferNotification.setTimestamp(LocalDateTime.now());
+        choferNotification.setType(NotificationType.TRIP_FINISHED);
+        notificationRepository.save(choferNotification);
+
+        // Crear notificaciones para cada pasajero
+        for (UserEntity pasajero : viaje.getPasajeros()) {
+            NotificationEntity pasajeroNotification = new NotificationEntity();
+            pasajeroNotification.setUser(pasajero);
+            pasajeroNotification.setMessage("El viaje hacia " + viaje.getLocalidadFin().getProvincia().getProvincia() + " en el que participaste ha sido finalizado.");
+            pasajeroNotification.setStatus(NotificationStatus.UNREAD);
+            pasajeroNotification.setTimestamp(LocalDateTime.now());
+            pasajeroNotification.setType(NotificationType.TRIP_FINISHED);
+            notificationRepository.save(pasajeroNotification);
+        }
+
         return ResponseEntity.ok("Viaje finalizado con éxito");
     }
+
     @GetMapping("/finalizados-por-mes")
     public ResponseEntity<List<ViajesPorMesDto>> getViajesFinalizadosPorMes() {
         List<ViajesPorMesDto> viajesFinalizados = viajeService.getViajesFinalizadosPorMes();

@@ -47,4 +47,11 @@ public class ReintegroEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_payment", nullable = false)
     private PaymentEntity payment; // Un reintegro está asociado a un solo pago
+
+
+
+    // Relación One-to-One con RefundEntity
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_refund", nullable = false)
+    private RefundEntity refund;
 }

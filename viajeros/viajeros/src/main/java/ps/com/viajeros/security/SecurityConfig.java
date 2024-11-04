@@ -36,6 +36,7 @@ public class SecurityConfig {
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/chat-websocket/**").permitAll()
                         .requestMatchers("/api/mercadopago/crear-preferencia").permitAll()
+                        .requestMatchers("/api/mercadopago/reintegro/**").permitAll()
                         // Proteger todas las demás rutas
                         .anyRequest().authenticated()
                 );

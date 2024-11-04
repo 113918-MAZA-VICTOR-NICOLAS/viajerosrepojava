@@ -2,8 +2,7 @@ package ps.com.viajeros.services.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ps.com.viajeros.dtos.payments.PaymentDto;
-import ps.com.viajeros.dtos.payments.ResponsePaymentDto;
+import ps.com.viajeros.dtos.payments.*;
 import ps.com.viajeros.entities.payment.PaymentEntity;
 import ps.com.viajeros.entities.user.UserEntity;
 import ps.com.viajeros.entities.payment.ReintegroEntity;
@@ -16,8 +15,11 @@ import ps.com.viajeros.repository.UserRepository;
 import ps.com.viajeros.repository.ViajeRepository;
 import ps.com.viajeros.services.PaymentService;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -127,6 +129,37 @@ public class PaymentServiceImpl implements PaymentService {
         return paymentRepository.findById(id).map(this::convertToDto).orElse(null);
     }
 
+    @Override
+    public List<PagoPasajeroDto> obtenerPagosPasajeros() {
+        return paymentRepository.findAll().stream()
+                .map(payment -> new PagoPasajeroDto(
+                        payment.getIdPayment(),
+                        payment.getViaje().getIdViaje(),
+                        payment.getPasajero().getName(),
+                        BigDecimal.valueOf(2000L), // Suponiendo que hay un campo de importe
+                        payment.getStatus(),
+                        payment.getViaje().getChofer().getName(),
+                        payment.getViaje().getChofer().getCbu(),
+                        payment.getViaje().getChofer().getBank(),
+                        payment.getStatusPagosChofer() != null ? payment.getStatusPagosChofer().toString() : "PENDING"
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void actualizarEstadoPagoChofer(RequestDriverPaymentDto request) {
+        PaymentEntity payment = paymentRepository.findById(request.getIdPago())
+                .orElseThrow(() -> new RuntimeException("Pago no encontrado con id: " + request.getIdPago()));
+
+        // Actualizar el estado del pago del chofer y la fecha de pago si es necesario
+        payment.setStatusPagosChofer(StatusPagosChofer.valueOf(request.getEstado()));
+        payment.setIdPagoAlChofer(request.getIdTransferenciaChofer());
+        payment.setFechaPagoAlChofer(LocalDateTime.now()); // Asigna la fecha actual como fecha de pago al chofer
+
+        paymentRepository.save(payment);
+    }
+
+
     private ResponsePaymentDto convertToDto(PaymentEntity payment) {
         ResponsePaymentDto dto = new ResponsePaymentDto();
         dto.setIdPayment(payment.getIdPayment());
@@ -142,4 +175,6 @@ public class PaymentServiceImpl implements PaymentService {
         dto.setFechaPago(payment.getFechaPago());
         return dto;
     }
+
+
 }

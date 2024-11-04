@@ -6,8 +6,13 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import ps.com.viajeros.entities.notification.NotificationEntity;
+import ps.com.viajeros.entities.notification.NotificationStatus;
+import ps.com.viajeros.entities.notification.NotificationType;
+import ps.com.viajeros.entities.user.UserEntity;
 import ps.com.viajeros.entities.viajes.StatusEntity;
 import ps.com.viajeros.entities.viajes.ViajesEntity;
+import ps.com.viajeros.repository.NotificationRepository;
 import ps.com.viajeros.repository.StatusViajeRepository;
 import ps.com.viajeros.repository.ViajeRepository;
 import ps.com.viajeros.services.impl.EmailService;
@@ -28,6 +33,9 @@ public class ViajeStatusScheduler {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     @Transactional
     @Scheduled(fixedRate = 30000) // Ejecutar cada 30 segundos
@@ -79,11 +87,34 @@ public class ViajeStatusScheduler {
         }
 
         // Finalmente, cambiar el estado de los viajes a "in progress"
+        // Finalmente, cambiar el estado de los viajes a "in progress"
         for (ViajesEntity viaje : viajes) {
             viaje.setEstado(inProgressStatus);
             viajeRepository.save(viaje); // Guardar el cambio
+
+            // Crear una notificación para el chofer
+            NotificationEntity choferNotification = new NotificationEntity();
+            choferNotification.setUser(viaje.getChofer()); // Usuario es el chofer del viaje
+            choferNotification.setMessage("Tu viaje hasta " + viaje.getLocalidadFin().getProvincia().getProvincia() + " ha comenzado.");
+            choferNotification.setStatus(NotificationStatus.UNREAD);
+            choferNotification.setTimestamp(LocalDateTime.now());
+            choferNotification.setType(NotificationType.TRIP_STARTED);
+            notificationRepository.save(choferNotification); // Guardar notificación para el chofer
+
+            // Crear notificaciones para cada pasajero
+            for (UserEntity pasajero : viaje.getPasajeros()) {
+                NotificationEntity pasajeroNotification = new NotificationEntity();
+                pasajeroNotification.setUser(pasajero); // Usuario es el pasajero del viaje
+                pasajeroNotification.setMessage("El viaje hacia " + viaje.getLocalidadFin().getProvincia().getProvincia() + " en el que eres pasajero ha comenzado.");
+                pasajeroNotification.setStatus(NotificationStatus.UNREAD);
+                pasajeroNotification.setTimestamp(LocalDateTime.now());
+                pasajeroNotification.setType(NotificationType.TRIP_STARTED);
+                notificationRepository.save(pasajeroNotification); // Guardar notificación para cada pasajero
+            }
+
             System.out.println("El viaje con id " + viaje.getIdViaje() + " ha sido marcado como 'in progress'.");
         }
+
     }
 
 

@@ -11,6 +11,8 @@ import ps.com.viajeros.dtos.viaje.SearchResultMatchDto;
 import ps.com.viajeros.dtos.viaje.ViajesRequestMatchDto;
 import ps.com.viajeros.entities.viajes.ViajesEntity;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -48,4 +50,6 @@ public interface ViajeService {
     ViajesEntity getTripById(Long tripId);
 
     ViajesEntity updateTrip(Long id, NewRequestViajeDto tripDto);
+
+    List<ViajeDto> getViajesByFecha(LocalDateTime startDate, LocalDateTime endDate) ;
 }

@@ -11,6 +11,9 @@ import ps.com.viajeros.dtos.statistic.ViajesPorMesDto;
 import ps.com.viajeros.dtos.viaje.NewRequestViajeDto;
 import ps.com.viajeros.dtos.viaje.SearchResultMatchDto;
 import ps.com.viajeros.dtos.viaje.ViajesRequestMatchDto;
+import ps.com.viajeros.entities.notification.NotificationEntity;
+import ps.com.viajeros.entities.notification.NotificationStatus;
+import ps.com.viajeros.entities.notification.NotificationType;
 import ps.com.viajeros.entities.user.UserEntity;
 import ps.com.viajeros.entities.ValuationEntity;
 import ps.com.viajeros.entities.VehicleEntity;
@@ -18,9 +21,13 @@ import ps.com.viajeros.entities.viajes.StatusEntity;
 import ps.com.viajeros.entities.viajes.ViajesEntity;
 import ps.com.viajeros.entities.viajes.directions.LocalidadEntity;
 import ps.com.viajeros.repository.*;
+import ps.com.viajeros.services.PaymentService;
 import ps.com.viajeros.services.ViajeService;
 import org.slf4j.Logger;
 
+import javax.management.Notification;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,7 +43,8 @@ public class ViajeServiceImpl implements ViajeService {
 
     @Autowired
     private ViajeRepository viajeRepository;
-
+    @Autowired
+    private PaymentService paymentService;
     @Autowired
     private VehicleRepository vehicleRepository;
 
@@ -47,6 +55,9 @@ public class ViajeServiceImpl implements ViajeService {
     private LocalidadRepository localidadRepository;
     @Autowired
     private StatusViajeRepository statusViajeRepository;
+
+    @Autowired
+    private NotificationRepository notificationRepository;
 
     @Override
 
@@ -243,7 +254,27 @@ public class ViajeServiceImpl implements ViajeService {
 
         // Verificar si el viaje tiene pasajeros
         if (viaje.getPasajeros() != null && !viaje.getPasajeros().isEmpty()) {
-            throw new IllegalStateException("No se puede eliminar el viaje porque ya tiene pasajeros");
+            viaje.getPasajeros().forEach(pasajero -> {
+                try {
+                    // Registrar un reintegro para cada pasajero
+                    paymentService.requestReintegroByPassenger(viajeId, pasajero.getIdUser());
+
+                    // Crear una notificación para cada pasajero
+                    NotificationEntity notification = new NotificationEntity();
+                    notification.setUser(pasajero);
+                    notification.setMessage("El chofer ha cancelado el viaje con ID " + viajeId +
+                            ". Se te reintegrará el dinero automáticamente.");
+                    notification.setStatus(NotificationStatus.UNREAD);
+                    notification.setTimestamp(LocalDateTime.now());
+                    notification.setType(NotificationType.TRIP_CANCELLED);
+                    notificationRepository.save(notification); // Guardar la notificación
+
+                } catch (RuntimeException e) {
+                    // Manejar posibles errores en la solicitud de reintegro
+                    System.err.println("Error al solicitar reintegro para el pasajero con ID " +
+                            pasajero.getIdUser() + ": " + e.getMessage());
+                }
+            });
         }
 
         // Buscar el estado 'deleted' (supongamos que su ID es 5)
@@ -256,6 +287,8 @@ public class ViajeServiceImpl implements ViajeService {
         // Guardar los cambios
         viajeRepository.save(viaje);
     }
+
+
 
 
     private SearchResultMatchDto convertToDto(ViajesEntity entity) {
@@ -388,7 +421,12 @@ public class ViajeServiceImpl implements ViajeService {
 
         return updatedTrip;
     }
-
+    @Override
+    public List<ViajeDto> getViajesByFecha(LocalDateTime  startDate, LocalDateTime endDate) {
+        return viajeRepository.findByfechaHoraInicioBetween(startDate, endDate).stream()
+                .map(this::convertToViajesDto)
+                .collect(Collectors.toList());
+    }
 
 
 }

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ps.com.viajeros.dtos.payments.StatusPagosChofer;
 import ps.com.viajeros.entities.user.UserEntity;
 import ps.com.viajeros.entities.viajes.ViajesEntity;
 
@@ -49,9 +50,26 @@ public class PaymentEntity {
     @Column(name = "fecha_pago", nullable = false)
     private LocalDateTime fechaPago; // Fecha y hora en que se realizó el pago
 
+    @Column(name = "fecha_pago_chofer", nullable = false)
+    private LocalDateTime fechaPagoAlChofer; // Fecha y hora en que se realizó el pago
+
+    @Column(name = "id_pago_chofer", nullable = false)
+    private Long idPagoAlChofer; // Fecha y hora en que se realizó el pago
+    // Relación One-to-One con ReintegroEntity
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status_pago_chofer", nullable = false)
+    private StatusPagosChofer statusPagosChofer;
+
 
     // Relación One-to-One con ReintegroEntity
     @OneToOne(mappedBy = "payment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ReintegroEntity reintegro; // Un pago tiene un reintegro
-
+    // Método para establecer el estado del pago del chofer como "PENDING" por defecto
+    @PrePersist
+    private void prePersist() {
+        if (statusPagosChofer == null) {
+            statusPagosChofer = StatusPagosChofer.PENDING;
+        }
+    }
 }

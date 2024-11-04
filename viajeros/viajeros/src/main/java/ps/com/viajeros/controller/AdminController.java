@@ -1,5 +1,6 @@
 package ps.com.viajeros.controller;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import ps.com.viajeros.dtos.admin.ViajeDto;
 import ps.com.viajeros.services.ViajeService;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -35,6 +38,20 @@ public class AdminController {
             viajes = viajeService.getAllViajes();
         }
 
+        return ResponseEntity.ok(viajes);
+    }
+
+    // Nuevo endpoint para obtener viajes filtrados por rango de fechas
+    @GetMapping("/viajes/fecha")
+    public ResponseEntity<List<ViajeDto>> getViajesPorFecha(
+            @RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        // Convertir `LocalDate` a `LocalDateTime` al inicio y final del día
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+
+        List<ViajeDto> viajes = viajeService.getViajesByFecha(startDateTime, endDateTime);
         return ResponseEntity.ok(viajes);
     }
 }

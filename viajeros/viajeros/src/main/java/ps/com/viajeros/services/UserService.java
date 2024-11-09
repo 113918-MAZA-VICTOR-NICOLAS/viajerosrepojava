@@ -45,4 +45,8 @@ public interface UserService {
     UserSummaryDto getUserSummary(Long userId);
 
     List<UsuariosPorDiaDto> getUsuariosNuevosPorDia();
+
+    List<UserDataDto> getAllActiveUsers();
+
+    void updateRole(Long userId, Long newRole);
 }

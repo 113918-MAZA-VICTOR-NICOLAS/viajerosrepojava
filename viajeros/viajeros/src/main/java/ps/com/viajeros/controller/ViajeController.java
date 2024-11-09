@@ -24,6 +24,7 @@ import ps.com.viajeros.repository.ViajeRepository;
 import ps.com.viajeros.services.PaymentService;
 import ps.com.viajeros.services.ViajeService;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -272,6 +273,12 @@ public class ViajeController {
     public ResponseEntity<List<ViajesPorMesDto>> getViajesFinalizadosPorMes() {
         List<ViajesPorMesDto> viajesFinalizados = viajeService.getViajesFinalizadosPorMes();
         return ResponseEntity.ok(viajesFinalizados);
+    }
+
+    @GetMapping("/gastototalviaje/{id}")
+    public ResponseEntity<BigDecimal> gastoTotalViajeById(@PathVariable("id") Long id) {
+        BigDecimal monto = viajeService.gastoTotalViajeById(id);
+        return ResponseEntity.ok(monto);
     }
 
     @GetMapping("/estado")

@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ps.com.viajeros.dtos.admin.ViajeDto;
+import ps.com.viajeros.dtos.user.UserDataDto;
+import ps.com.viajeros.services.UserService;
 import ps.com.viajeros.services.ViajeService;
 
 import java.time.LocalDate;
@@ -19,8 +21,9 @@ public class AdminController {
 
     private final ViajeService viajeService; // Servicio que maneja la lógica de los viajes
 
-    public AdminController(ViajeService viajeService) {
-        this.viajeService = viajeService;
+    private final UserService userService;
+    public AdminController(ViajeService viajeService,UserService userService) {
+        this.viajeService = viajeService;   this.userService = userService;
     }
 
     // Endpoint para obtener todos los viajes
@@ -53,5 +56,12 @@ public class AdminController {
 
         List<ViajeDto> viajes = viajeService.getViajesByFecha(startDateTime, endDateTime);
         return ResponseEntity.ok(viajes);
+    }
+
+
+    @GetMapping("/allusers")
+    public ResponseEntity<List<UserDataDto>> getAllActiveUsers() {
+        List<UserDataDto> users = userService.getAllActiveUsers();
+        return ResponseEntity.ok(users);
     }
 }

@@ -63,6 +63,13 @@ public class UserEntity {
     @Column(name = "registration_date", nullable = false)
     private LocalDateTime registrationDate;
 
+    @Column(name = "blocked", nullable = true)
+    private Boolean blocked;
+
+
+    @Column(name = "comment_blocked", nullable = true)
+    private String comment_blocked;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rol_id", nullable = false)
     private RolEntity rol;

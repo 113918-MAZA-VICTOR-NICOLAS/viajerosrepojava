@@ -8,6 +8,9 @@ import ps.com.viajeros.dtos.login.LoginRequest;
 import ps.com.viajeros.dtos.pet.PetDto;
 import ps.com.viajeros.dtos.statistic.UsuariosPorDiaDto;
 import ps.com.viajeros.dtos.user.*;
+import ps.com.viajeros.entities.ValuationEntity;
+import ps.com.viajeros.entities.VehicleEntity;
+import ps.com.viajeros.entities.pet.PetEntity;
 import ps.com.viajeros.entities.user.RolEntity;
 import ps.com.viajeros.entities.user.UserEntity;
 import ps.com.viajeros.entities.viajes.StatusEntity;
@@ -300,5 +303,75 @@ public class UserServiceImpl implements UserService {
         // Ejemplo de estructura de respuesta:
         List<UsuariosPorDiaDto> usuariosNuevosPorDia = userRepository.getUsuariosNuevosPorDia();
         return usuariosNuevosPorDia;
+    }
+
+    @Override
+    public List<UserDataDto> getAllActiveUsers() {
+        return userRepository.findAllByDeletedFalse().stream()
+                .map(this::convertToUserDataDto)
+                .collect(Collectors.toList());
+    }
+
+    private UserDataDto convertToUserDataDto(UserEntity user) {
+        return new UserDataDto(
+                user.getIdUser(),
+                user.getName(),
+                user.getLastname(),
+                user.getEmail(),
+                user.getBank(),
+                user.getCbu(),
+                user.getCuil(),
+                user.getPhone(),
+                user.isDeleted(),
+                user.getProfileImage(),
+                user.getRegistrationDate(),
+                user.getVehicles().stream().map(this::convertToVehicleDTO).collect(Collectors.toList()),
+                user.getPets().stream().map(this::convertToPetDto).collect(Collectors.toList()),
+                user.getReceivedValuations().stream().map(this::convertToValuationDTO).collect(Collectors.toList())
+        );
+    }
+
+    private VehicleDTO convertToVehicleDTO(VehicleEntity vehicle) {
+        return VehicleDTO.builder()
+                .idCar(vehicle.getIdCar())
+                .brand(vehicle.getBrand())
+                .model(vehicle.getModel())
+                .patent(vehicle.getPatent())
+                .color(vehicle.getColor())
+                .fuel(vehicle.getFuel())
+                .gnc(vehicle.isGnc())
+                .kmL(vehicle.getKmL())
+                .deleted(vehicle.isDeleted())
+                .build();
+    }
+
+    private PetDto convertToPetDto(PetEntity pet) {
+        return PetDto.builder()
+                .idPet(pet.getIdPet())
+                .name(pet.getName())
+                .deleted(pet.isDeleted())
+                .canil(pet.isCanil())
+                .size(pet.getSize().getSizeName())
+                .type(pet.getType().getTypeName())
+                .build();
+    }
+
+    private ValuationDTO convertToValuationDTO(ValuationEntity valuation) {
+        return new ValuationDTO(
+                valuation.getIdValuation(),
+                valuation.getIdTrip(),
+                valuation.getComments(),
+                valuation.getRating()
+        );
+    }
+
+    @Override
+    public void updateRole(Long userId, Long newRole) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        RolEntity role = rolRepository.findById(newRole)
+                .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+        user.setRol(role);
+        userRepository.save(user);
     }
 }

@@ -30,6 +30,6 @@ public interface UserRepository extends JpaRepository<UserEntity,Long> {
             "GROUP BY TO_CHAR(u.registrationDate, 'YYYY-MM-DD') " +
             "ORDER BY TO_CHAR(u.registrationDate, 'YYYY-MM-DD') ASC")
     List<UsuariosPorDiaDto> getUsuariosNuevosPorDia();
-
+    List<UserEntity> findAllByDeletedFalse();
 
 }

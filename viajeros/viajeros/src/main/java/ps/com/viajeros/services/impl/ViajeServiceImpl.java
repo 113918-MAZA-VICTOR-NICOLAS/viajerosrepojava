@@ -4,7 +4,9 @@ import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import ps.com.viajeros.dtos.admin.ViajeDto;
 import ps.com.viajeros.dtos.statistic.EstadoViajesDto;
 import ps.com.viajeros.dtos.statistic.ViajesPorMesDto;
@@ -26,6 +28,7 @@ import ps.com.viajeros.services.ViajeService;
 import org.slf4j.Logger;
 
 import javax.management.Notification;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -427,6 +430,11 @@ public class ViajeServiceImpl implements ViajeService {
                 .map(this::convertToViajesDto)
                 .collect(Collectors.toList());
     }
-
+    @Override
+    public BigDecimal gastoTotalViajeById(Long id) {
+        return viajeRepository.findById(id)
+                .map(ViajesEntity::getGastoTotal) // Suponiendo que Viaje tiene un método getMonto que retorna el BigDecimal
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Viaje no encontrado con ID: " + id));
+    }
 
 }

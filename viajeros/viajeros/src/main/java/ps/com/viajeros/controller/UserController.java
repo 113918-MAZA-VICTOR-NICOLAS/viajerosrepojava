@@ -213,5 +213,9 @@ public class UserController {
         List<UsuariosPorDiaDto> usuariosNuevos = userService.getUsuariosNuevosPorDia();
         return ResponseEntity.ok(usuariosNuevos);
     }
-
+    @PutMapping("/{userId}/role/{roleId}")
+    public ResponseEntity<Void> updateUserRole(@PathVariable Long userId, @PathVariable Long roleId) {
+        userService.updateRole(userId, roleId);
+        return ResponseEntity.ok().build();
+    }
 }

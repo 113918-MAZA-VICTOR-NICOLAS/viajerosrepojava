@@ -59,5 +59,14 @@ public class VehicleController {
         CarResponseDto updatedCar = vehicleService.updateVehicle(id, carDto);
         return ResponseEntity.ok(updatedCar);
     }
+    @GetMapping("/getAllVehicles")
+    public List<CarResponseDto> getAllVehicles() {
+        return vehicleService.getAllVehicles();
+    }
 
+    // Nuevo endpoint para obtener un vehículo por ID
+    @GetMapping("getCarById/{id}")
+    public CarResponseDto getVehicleById(@PathVariable Long id) {
+        return vehicleService.getCarById(id);
+    }
 }

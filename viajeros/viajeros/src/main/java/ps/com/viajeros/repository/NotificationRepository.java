@@ -17,6 +17,7 @@ public interface NotificationRepository extends JpaRepository<NotificationEntity
     List<NotificationEntity> findByUser(UserEntity user);
     // Encuentra una notificación por usuario y tipo de notificación
     Optional<NotificationEntity> findByUserAndType(UserEntity user, NotificationType type);
+    List<NotificationEntity> findByUserAndStatus(UserEntity user, NotificationStatus status);
 
 
 

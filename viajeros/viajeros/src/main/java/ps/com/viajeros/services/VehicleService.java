@@ -16,4 +16,8 @@ public interface VehicleService {
     CarResponseDto delete(Long id);
 
   CarResponseDto updateVehicle(Long id, CarResponseDto updatedVehicle);
+
+    List<CarResponseDto> getAllVehicles();
+
+    CarResponseDto getCarById(Long id);
 }

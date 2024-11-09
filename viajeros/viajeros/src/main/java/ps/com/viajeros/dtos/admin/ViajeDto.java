@@ -1,5 +1,6 @@
 package ps.com.viajeros.dtos.admin;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +18,7 @@ public class ViajeDto {
     private List<String> passengers; // Lista de nombres de pasajeros
     private String origin;
     private String destination;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime startDate;
     private String status; // PENDING, FINISHED, etc.
 

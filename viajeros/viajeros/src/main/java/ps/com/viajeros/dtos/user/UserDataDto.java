@@ -1,5 +1,6 @@
 package ps.com.viajeros.dtos.user;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,6 +26,7 @@ public class UserDataDto {
     private Long phone;
     private boolean deleted;
     private String profileImage;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime registrationDate;
     private List<VehicleDTO> vehicles;
     private List<PetDto> pets;

@@ -74,7 +74,7 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         // Agregar todas las notificaciones del usuario desde NotificationRepository
-        notifications.addAll(notificationRepository.findByUser(user)
+        notifications.addAll(notificationRepository.findByUserAndStatus(user, NotificationStatus.UNREAD)
                 .stream()
                 .map(notification -> {
                     NotificationResponseDto dto = new NotificationResponseDto();

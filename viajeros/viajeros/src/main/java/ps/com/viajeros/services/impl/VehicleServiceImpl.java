@@ -1,5 +1,6 @@
 package ps.com.viajeros.services.impl;
 
+import jakarta.websocket.OnClose;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,7 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Autowired
     ModelMapper modelMapper;
+
     @Override
     public List<CarResponseDto> getAllCars(Long id) {
         Optional<UserEntity> userEntity = userRepository.findById(id);
@@ -120,9 +122,42 @@ public class VehicleServiceImpl implements VehicleService {
         return modelMapper.map(updatedVehicle, CarResponseDto.class);
     }
 
+    @Override
+    public List<CarResponseDto> getAllVehicles() {
+        // Obtén todos los vehículos y mapea a CarResponseDto
+        return vehicleRepository.findAll().stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    private CarResponseDto mapToDto(VehicleEntity vehicle) {
+        return CarResponseDto.builder()
+                .idCar(vehicle.getIdCar())
+                .brand(vehicle.getBrand())
+                .model(vehicle.getModel())
+                .patent(vehicle.getPatent())
+                .color(vehicle.getColor())
+                .fuel(vehicle.getFuel())
+                .kml(vehicle.getKmL())
+                .gnc(vehicle.isGnc())
+                .deleted(vehicle.isDeleted())
+                .build();
+    }
+
     // Método de utilidad para convertir VehicleEntity a CarResponseDto
     private CarResponseDto convertToCarResponseDto(VehicleEntity vehicleEntity) {
         return modelMapper.map(vehicleEntity, CarResponseDto.class);
     }
+
+    @Override
+    public CarResponseDto getCarById(Long id) {
+        // Buscar el vehículo por ID
+        VehicleEntity vehicle = vehicleRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vehículo no encontrado con id: " + id));
+
+        // Mapear la entidad VehicleEntity a CarResponseDto
+        return mapToDto(vehicle);
+    }
+
 
 }

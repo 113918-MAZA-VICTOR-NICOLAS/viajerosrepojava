@@ -57,34 +57,42 @@ public class ViajeStatusScheduler {
         );
 
         // Enviar recordatorios a pasajeros
+        // Enviar recordatorios a pasajeros y al chofer
         for (ViajesEntity viaje : viajesEnUnaHora) {
             // Solo enviar recordatorio si no ha sido enviado previamente
             if (!viaje.isRecordatorioEnviado()) {
 
-                    // Calcular la diferencia entre la hora actual y la hora de inicio del viaje
-                    Duration duration = Duration.between(LocalDateTime.now(), viaje.getFechaHoraInicio());
-                    long hours = duration.toHours();
-                    long minutes = duration.toMinutes() % 60;
+                // Calcular el tiempo restante hasta el inicio del viaje
+                Duration duration = Duration.between(LocalDateTime.now(), viaje.getFechaHoraInicio());
+                long hours = duration.toHours();
+                long minutes = duration.toMinutes() % 60;
 
-                    // Construir el mensaje dinámico basado en el tiempo restante
-                    String tiempoRestante = hours > 0
-                            ? " en " + hours + " hora" + (hours > 1 ? "s" : "") + " y " + minutes + " minuto" + (minutes != 1 ? "s" : "") + "."
-                            : " en " + minutes + " minuto" + (minutes != 1 ? "s" : "") + ".";
+                // Construir el mensaje dinámico basado en el tiempo restante
+                String tiempoRestante = hours > 0
+                        ? " en " + hours + " hora" + (hours > 1 ? "s" : "") + " y " + minutes + " minuto" + (minutes != 1 ? "s" : "") + "."
+                        : " en " + minutes + " minuto" + (minutes != 1 ? "s" : "") + ".";
 
-                    String viajeDetails = "Estimado " + "user.getName()" + ",\n\nSu viaje desde " + viaje.getLocalidadInicio().getLocalidad() +
-                            " hacia " + viaje.getLocalidadFin().getLocalidad() + " comenzará" + tiempoRestante +
-                            "\n\nPor favor prepárese y llegue a tiempo.\n\nSaludos,\nViajeros.com";
+                // Crear el cuerpo del mensaje
+                String viajeDetails = "Estimado,\n\nSu viaje desde " + viaje.getLocalidadInicio().getLocalidad() +
+                        " hacia " + viaje.getLocalidadFin().getLocalidad() + " comenzará" + tiempoRestante +
+                        "\n\nPor favor prepárese y llegue a tiempo.\n\nSaludos,\nViajeros.com";
 
-                    // Enviar el recordatorio por correo
-                    emailService.sendReminderEmail("cordobacelularesoficial@gmail.com", viajeDetails);
-                    System.out.println("Recordatorio enviado a " + "user.getEmail()" + " para el viaje con id " + viaje.getIdViaje());
+                // Enviar el recordatorio a cada pasajero
+                for (UserEntity pasajero : viaje.getPasajeros()) {
+                    emailService.sendReminderEmail(pasajero.getEmail(), viajeDetails);
+                    System.out.println("Recordatorio enviado a " + pasajero.getEmail() + " para el viaje con id " + viaje.getIdViaje());
+                }
 
+                // Enviar el recordatorio al chofer
+                emailService.sendReminderEmail(viaje.getChofer().getEmail(), viajeDetails);
+                System.out.println("Recordatorio enviado al chofer " + viaje.getChofer().getEmail() + " para el viaje con id " + viaje.getIdViaje());
 
                 // Marcar el viaje como "recordatorio enviado"
                 viaje.setRecordatorioEnviado(true);
                 viajeRepository.save(viaje); // Guardar el cambio
             }
         }
+
 
         // Finalmente, cambiar el estado de los viajes a "in progress"
         // Finalmente, cambiar el estado de los viajes a "in progress"

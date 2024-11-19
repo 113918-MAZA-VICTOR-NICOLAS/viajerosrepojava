@@ -2,10 +2,8 @@ package ps.com.viajeros.controller;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import ps.com.viajeros.dtos.admin.AdminUserUpdateResponseDto;
 import ps.com.viajeros.dtos.admin.ViajeDto;
 import ps.com.viajeros.dtos.user.UserDataDto;
 import ps.com.viajeros.services.UserService;
@@ -59,9 +57,26 @@ public class AdminController {
     }
 
 
-    @GetMapping("/allusers")
-    public ResponseEntity<List<UserDataDto>> getAllActiveUsers() {
-        List<UserDataDto> users = userService.getAllActiveUsers();
+    @GetMapping("/getAllUsersForAdmin")
+    public ResponseEntity<List<UserDataDto>> getAllUsersForAdmin() {
+        List<UserDataDto> users = userService.getAllUsersForAdmin();
         return ResponseEntity.ok(users);
+    }
+
+
+    @GetMapping("/user-details/{userId}")
+    public ResponseEntity<AdminUserUpdateResponseDto> getUserDetailsForAdmin(@PathVariable Long userId) {
+        AdminUserUpdateResponseDto userDetails = userService.getUserDetailsForAdmin(userId);
+        return ResponseEntity.ok(userDetails);
+    }
+
+    @PutMapping("/update/{iduser}")
+    public ResponseEntity<?> updateUser(@RequestBody AdminUserUpdateResponseDto userDto, @PathVariable Long iduser) {
+        try {
+            userService.updateUserByAdmin(userDto, iduser);
+            return ResponseEntity.ok("Usuario actualizado correctamente.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error al actualizar usuario: " + e.getMessage());
+        }
     }
 }

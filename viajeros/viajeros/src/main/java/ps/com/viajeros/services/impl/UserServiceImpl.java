@@ -3,6 +3,7 @@ package ps.com.viajeros.services.impl;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ps.com.viajeros.dtos.admin.AdminUserUpdateResponseDto;
 import ps.com.viajeros.dtos.car.VehicleDTO;
 import ps.com.viajeros.dtos.login.LoginRequest;
 import ps.com.viajeros.dtos.pet.PetDto;
@@ -312,6 +313,15 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<UserDataDto> getAllUsersForAdmin() {
+        return userRepository.findAll().stream()
+                .map(this::convertToUserDataDto)
+                .collect(Collectors.toList());
+    }
+
+
+
     private UserDataDto convertToUserDataDto(UserEntity user) {
         return new UserDataDto(
                 user.getIdUser(),
@@ -372,6 +382,45 @@ public class UserServiceImpl implements UserService {
         RolEntity role = rolRepository.findById(newRole)
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
         user.setRol(role);
+        userRepository.save(user);
+    }
+
+    @Override
+    public AdminUserUpdateResponseDto getUserDetailsForAdmin(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Mapea los datos de UserEntity al DTO
+        AdminUserUpdateResponseDto dto = new AdminUserUpdateResponseDto();
+        dto.setPassword(user.getPassword());
+        dto.setName(user.getName());
+        dto.setLastname(user.getLastname());
+        dto.setEmail(user.getEmail());
+        dto.setBank(user.getBank());
+        dto.setCbu(user.getCbu());
+        dto.setCuil(user.getCuil());
+        dto.setPhone(user.getPhone());
+        dto.setDeleted(user.isDeleted());
+        dto.setBlocked(user.getBlocked());
+        dto.setCommentBlocked(user.getComment_blocked());
+        dto.setRol(user.getRol().getRolName()); // Ajusta según cómo esté definido el rol en `RolEntity`
+
+        return dto;
+    }
+
+
+    @Override
+    public void updateUserByAdmin(AdminUserUpdateResponseDto userDto, Long id) {
+        UserEntity user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        user.setPassword(userDto.getPassword()); // Considera usar encriptación
+        user.setName(userDto.getName());
+        user.setLastname(userDto.getLastname());
+        user.setEmail(userDto.getEmail());
+        user.setPhone(userDto.getPhone());
+        user.setBank(userDto.getBank());
+        user.setCbu(userDto.getCbu());
+        user.setCuil(userDto.getCuil());
+        user.setDeleted(userDto.isDeleted());
         userRepository.save(user);
     }
 }

@@ -1,6 +1,7 @@
 package ps.com.viajeros.services;
 
 import org.springframework.stereotype.Service;
+import ps.com.viajeros.dtos.admin.AdminUserUpdateResponseDto;
 import ps.com.viajeros.dtos.login.LoginRequest;
 import ps.com.viajeros.dtos.statistic.UsuariosPorDiaDto;
 import ps.com.viajeros.dtos.user.*;
@@ -49,4 +50,11 @@ public interface UserService {
     List<UserDataDto> getAllActiveUsers();
 
     void updateRole(Long userId, Long newRole);
+
+    AdminUserUpdateResponseDto getUserDetailsForAdmin(Long userId);
+
+    List<UserDataDto> getAllUsersForAdmin();
+
+
+    void updateUserByAdmin(AdminUserUpdateResponseDto userDto, Long id);
 }

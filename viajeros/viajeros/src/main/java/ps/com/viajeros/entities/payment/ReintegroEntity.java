@@ -52,6 +52,6 @@ public class ReintegroEntity {
 
     // Relación One-to-One con RefundEntity
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_refund", nullable = false)
+    @JoinColumn(name = "id_refund", nullable = true)
     private RefundEntity refund;
 }

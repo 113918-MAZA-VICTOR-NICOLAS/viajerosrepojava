@@ -219,6 +219,7 @@ public class ViajeController {
 
             // Eliminar al pasajero del viaje
             viaje.getPasajeros().remove(pasajero);
+            viaje.setAsientosDisponibles(viaje.getAsientosDisponibles()+1);
             viajeRepository.save(viaje);
 
             // Solicitar reintegro

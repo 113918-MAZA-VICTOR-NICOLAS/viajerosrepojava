@@ -159,6 +159,44 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRepository.save(payment);
     }
 
+    @Override
+    public PaymentStadisticDto getStatusNumPayments() {
+        List<Object[]> result = paymentRepository.findPaymentStatistics();
+
+        if (result == null || result.isEmpty() || result.get(0) == null) {
+            return PaymentStadisticDto.builder()
+                    .paidCount(0L)
+                    .paidTotal(0L)
+                    .pendingCount(0L)
+                    .pendingTotal(0L)
+                    .rejectedCount(0L)
+                    .rejectedTotal(0L)
+                    .build();
+        }
+
+        Object[] stats = result.get(0);
+        Long paidCount = ((Number) stats[0]).longValue();    // Número de pagos PAID
+        Long pendingCount = ((Number) stats[1]).longValue(); // Número de pagos PENDING
+        Long rejectedCount = ((Number) stats[2]).longValue(); // Número de pagos REJECTED
+
+        // Multiplicar por el monto unitario (2000)
+        Long paidTotal = paidCount * 2000;
+        Long pendingTotal = pendingCount * 2000;
+        Long rejectedTotal = rejectedCount * 2000;
+
+        return PaymentStadisticDto.builder()
+                .paidCount(paidCount)
+                .paidTotal(paidTotal)
+                .pendingCount(pendingCount)
+                .pendingTotal(pendingTotal)
+                .rejectedCount(rejectedCount)
+                .rejectedTotal(rejectedTotal)
+                .build();
+    }
+
+
+
+
 
     private ResponsePaymentDto convertToDto(PaymentEntity payment) {
         ResponsePaymentDto dto = new ResponsePaymentDto();

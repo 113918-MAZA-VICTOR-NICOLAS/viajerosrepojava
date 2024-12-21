@@ -4,10 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ps.com.viajeros.dtos.payments.PagoPasajeroDto;
-import ps.com.viajeros.dtos.payments.PaymentDto;
-import ps.com.viajeros.dtos.payments.RequestDriverPaymentDto;
-import ps.com.viajeros.dtos.payments.ResponsePaymentDto;
+import ps.com.viajeros.dtos.payments.*;
 import ps.com.viajeros.services.PaymentService;
 
 import java.util.List;
@@ -38,7 +35,11 @@ public class PaymentsController {
         }
     }
 
-
+    @GetMapping("/statistics")
+    public ResponseEntity<PaymentStadisticDto> getPaymentStatistics() {
+        PaymentStadisticDto statistics = paymentService.getStatusNumPayments();
+        return ResponseEntity.ok(statistics);
+    }
     @GetMapping("/listado-pasajeros")
     public ResponseEntity<List<PagoPasajeroDto>> obtenerListadoPagos() {
         List<PagoPasajeroDto> pagos = paymentService.obtenerPagosPasajeros();

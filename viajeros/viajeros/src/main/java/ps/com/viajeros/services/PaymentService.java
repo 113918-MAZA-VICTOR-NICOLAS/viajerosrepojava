@@ -16,4 +16,6 @@ public interface PaymentService {
     List<PagoPasajeroDto> obtenerPagosPasajeros();
 
     void actualizarEstadoPagoChofer(RequestDriverPaymentDto request);
+
+    PaymentStadisticDto getStatusNumPayments();
 }

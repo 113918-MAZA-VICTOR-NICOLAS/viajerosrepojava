@@ -50,10 +50,10 @@ public class PaymentEntity {
     @Column(name = "fecha_pago", nullable = false)
     private LocalDateTime fechaPago; // Fecha y hora en que se realizó el pago
 
-    @Column(name = "fecha_pago_chofer", nullable = false)
+    @Column(name = "fecha_pago_chofer", nullable = true)
     private LocalDateTime fechaPagoAlChofer; // Fecha y hora en que se realizó el pago
 
-    @Column(name = "id_pago_chofer", nullable = false)
+    @Column(name = "id_pago_chofer", nullable = true)
     private Long idPagoAlChofer; // Fecha y hora en que se realizó el pago
     // Relación One-to-One con ReintegroEntity
 

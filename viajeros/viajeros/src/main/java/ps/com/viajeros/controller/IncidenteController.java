@@ -46,23 +46,36 @@ public class IncidenteController {
 
     private IncidenteEntity convertirDtoAEntidad(IncidenteDto incidenteDto, Long idViaje) {
 
-        UserEntity user = userRepository.getReferenceById(incidenteDto.getDenunciadoId());
+        // Obtén la entidad del viaje por su ID
+        ViajesEntity viaje = incidenteService.obtenerViajePorId(idViaje);
+
+        // Determina quién es el denunciado
+        UserEntity denunciado;
+        if (incidenteDto.getDenunciadoId() == 0) {
+            // Si el id es 0, asigna el chofer del viaje como denunciado
+            denunciado = viaje.getChofer();
+        } else {
+            // Caso contrario, busca el usuario por el ID proporcionado
+            denunciado = userRepository.getReferenceById(incidenteDto.getDenunciadoId());
+        }
+
+        // Crear la entidad IncidenteEntity
         IncidenteEntity incidenteEntity = new IncidenteEntity();
         incidenteEntity.setDescripcion(incidenteDto.getDescripcion());
         incidenteEntity.setTipoIncidente(incidenteDto.getTipoIncidente());
         incidenteEntity.setFechaIncidente(incidenteDto.getFechaIncidente());
-        incidenteEntity.setDenunciado(user);
+        incidenteEntity.setDenunciado(denunciado);
         incidenteEntity.setEstadoResolucion(incidenteDto.getEstadoResolucion());
         incidenteEntity.setResolucion(incidenteDto.getResolucion());
         incidenteEntity.setFechaResolucion(incidenteDto.getFechaResolucion());
         incidenteEntity.setIsPasajero(incidenteDto.getIsPasajero());
 
-        // Aquí asumes que tienes métodos en tu servicio para obtener el viaje y el usuario por sus IDs
-        ViajesEntity viaje = incidenteService.obtenerViajePorId(idViaje);
+        // Obtén el usuario que reportó el incidente
         UserEntity reportadoPor = incidenteService.obtenerUsuarioPorId(incidenteDto.getReportadoPorId());
-
-        incidenteEntity.setViaje(viaje);
         incidenteEntity.setReportadoPor(reportadoPor);
+
+        // Asocia el viaje al incidente
+        incidenteEntity.setViaje(viaje);
 
         return incidenteEntity;
     }
